@@ -28,9 +28,11 @@ model Plant {
 id                        Int       @id @default(autoincrement())
 cName                     String    @unique
 sName                     String    @unique
+genus                     String?
+species                   String?
 care                      String
 reviews                   Review[]
-pcolor                    String?
+pColor                    String?
 sColor                    String?
 imageUrl                  String?
 }

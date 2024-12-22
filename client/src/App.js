@@ -9,11 +9,12 @@ import PlantDetail from './components/PlantDetail';
 import ReviewList from './components/ReviewList';
 import ReviewDetail from './components/ReviewDetail';
 import Account from './components/Account';
+import Plants from './components/Plants'; // Import the new Plants component
 
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="app-container">
         <header className="App-header">
           <h1>Plant Review App</h1>
           <Navbar />
@@ -27,6 +28,7 @@ function App() {
           <Route path="/reviews" element={<ReviewList />} />
           <Route path="/" element={<PlantList />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/plants" element={<Plants />} /> {/* Add the new route */}
         </Routes>
       </div>
     </Router>

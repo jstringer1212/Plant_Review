@@ -21,9 +21,6 @@
 }
 
 .navbar-center {
-  display: flex;
-  justify-content: center;
-  align-content: center;
   flex-grow: 1;
   text-align: center;
 }

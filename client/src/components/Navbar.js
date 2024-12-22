@@ -17,6 +17,9 @@ const Navbar = () => {
         <li>
           <Link to="/">Home</Link>
         </li>
+        <li>
+          <Link to="/plants">Plants</Link>
+        </li>
       </ul>
       <div className="navbar-center">
         <h1>Plant Review App</h1>
