@@ -1,0 +1,17 @@
+body {
+  background-color: #91f7c4; /* Light gray background color */
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-container {
+    background-color: #91f7c4; 
+    flex: 1;
+    padding: 20px;
+}

@@ -11,6 +11,7 @@ const plantRoutes = require('./routes/plant');
 const reviewRoutes = require('./routes/reviews');
 const registerRoute = require('./routes/register');
 const loginRoute = require('./routes/login');
+const commentRoutes = require('./routes/comments');
 
 // Middleware
 app.use(express.json());
@@ -19,12 +20,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use('/auth', authRoutes);
-app.use('/users', authenticateToken, userRoutes);
-app.use('/plant', authenticateToken, plantRoutes);
-app.use('/review', authenticateToken, reviewRoutes);
-app.use('/register', registerRoute);
-app.use('/login', loginRoute);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', authenticateToken, userRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/register', registerRoute);
+app.use('/api/login', loginRoute);
+app.use('/api/comments', commentRoutes);
+
 
 // Test route
 app.get('/', (req, res) => {

@@ -30,6 +30,9 @@ cName                     String    @unique
 sName                     String    @unique
 care                      String
 reviews                   Review[]
+pcolor                    String?
+sColor                    String?
+imageUrl                  String?
 }
 
 model Review {
