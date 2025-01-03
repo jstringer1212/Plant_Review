@@ -9,7 +9,8 @@ import PlantDetail from './components/PlantDetail';
 import ReviewList from './components/ReviewList';
 import ReviewDetail from './components/ReviewDetail';
 import Account from './components/Account';
-import Plants from './components/Plants'; // Import the new Plants component
+import Home from './components/Home';
+import './Styler/AllStyles.css';
 
 function App() {
   return (
@@ -17,18 +18,17 @@ function App() {
       <div className="app-container">
         <header className="App-header">
           <h1>Plant Review App</h1>
-          <Navbar />
+          <Navbar /> 
         </header>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/plant/:id" element={<PlantDetail />} />
-          <Route path="/plant" element={<PlantList />} />
+          <Route path="/plants/:id" element={<PlantDetail />} />
+          <Route path="/plants" element={<PlantList />} />
           <Route path="/reviews/:id" element={<ReviewDetail />} />
           <Route path="/reviews" element={<ReviewList />} />
-          <Route path="/" element={<PlantList />} />
+          <Route path="/" element={<Home />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/plants" element={<Plants />} /> {/* Add the new route */}
         </Routes>
       </div>
     </Router>

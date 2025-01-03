@@ -1,68 +1,78 @@
-// reviews.js
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { authenticateToken } = require('./auth');
 
-// Example route for getting all reviews
-router.get('/', (req, res) => {
-  res.send('Getting all reviews');
+// Get all reviews, with optional filtering by plantId
+router.get('/', async (req, res) => {
+  const { plantId } = req.query;
+  
+  try {
+    let reviews;
+    if (plantId) {
+      // Filter reviews by plantId if provided
+      reviews = await prisma.review.findMany({
+        where: {
+          plantId: parseInt(plantId, 10), // Make sure to parse it as an integer
+        },
+      });
+    } else {
+      // Return all reviews if no plantId is specified
+      reviews = await prisma.review.findMany();
+    }
+    res.status(200).json(reviews);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch reviews' });
+  }
 });
 
-// Route for adding a new review
-router.post('/', authenticateToken, async (req, res) => {
-  const { userId, plantId, rating, content } = req.body;
-
-  // Simple validation
-  if (!userId || !plantId || !rating || !content) {
-    return res.status(400).json({ error: 'Please provide all required fields: userId, plantId, rating, content' });
-  }
-
+// Create a review
+router.post('/', async (req, res) => {
+  const { content, rating, userId, plantId } = req.body;
   try {
     const newReview = await prisma.review.create({
       data: {
+        content,
+        rating,
         userId,
         plantId,
-        rating,
-        content,
       },
     });
-
-    res.status(201).json({ message: 'Review added successfully', review: newReview });
-  } catch (error) {
-    console.error('Error adding review:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  } finally {
-    await prisma.$disconnect();
+    res.status(201).json(newReview);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create review' });
   }
 });
 
-// Route for getting all reviews or a specific review by ID
-router.get('/:id?', async (req, res) => {
-  const { id } = req.params;
-
+// Delete a review by reviewId and plantId
+router.delete('/:reviewId', async (req, res) => {
+  const { reviewId } = req.params;
+  const { plantId } = req.body; // Or you could use query params: req.query.plantId
+  
   try {
-    if (id) {
-      const review = await prisma.review.findUnique({
-        where: { id: parseInt(id) },
-      });
+    // Find the review to ensure it belongs to the correct plantId
+    const review = await prisma.review.findUnique({
+      where: { id: parseInt(reviewId, 10) },
+    });
 
-      if (!review) {
-        return res.status(404).json({ error: 'Review not found' });
-      }
-
-      res.status(200).json(review);
-    } else {
-      const reviews = await prisma.review.findMany();
-      res.status(200).json(reviews);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
     }
-  } catch (error) {
-    console.error('Error fetching reviews:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  } finally {
-    await prisma.$disconnect();
+
+    if (review.plantId !== parseInt(plantId, 10)) {
+      return res.status(400).json({ error: 'Review does not belong to the specified plant' });
+    }
+
+    // Proceed to delete the review if it belongs to the correct plantId
+    await prisma.review.delete({
+      where: { id: parseInt(reviewId, 10) },
+    });
+
+    res.status(200).json({ message: 'Review deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete review' });
   }
 });
+
 
 module.exports = router;

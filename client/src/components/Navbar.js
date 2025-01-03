@@ -22,7 +22,7 @@ const Navbar = () => {
         </li>
       </ul>
       <div className="navbar-center">
-        <h1>Plant Review App</h1>
+        <p>Plant Review App</p>
       </div>
       <ul className="navbar-right">
         {!token ? (

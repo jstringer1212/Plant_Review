@@ -14,52 +14,58 @@ datasource db {
 }
 
 model User {
-id                        Int       @id @default(autoincrement())
-firstName                 String
-lastName                  String
-email                     String    @unique
-password                  String
-role                      String    @default("user")
-reviews                   Review[]
-comments                  Comment[]
+  id          Int       @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String    @unique
+  password    String
+  role        String    @default("user")
+  reviews     Review[]
+  comments    Comment[]
+  favorites   Favorite[]
 }
 
 model Plant {
-id                        Int       @id @default(autoincrement())
-cName                     String    @unique
-sName                     String    @unique
-genus                     String?
-species                   String?
-care                      String
-reviews                   Review[]
-pColor                    String?
-sColor                    String?
-imageUrl                  String?
+  id          Int       @id @default(autoincrement())
+  cName       String    @unique
+  sName       String    @unique
+  genus       String?
+  species     String?
+  care        String
+  reviews     Review[]
+  pColor      String?
+  sColor      String?
+  imageUrl    String?
+  favoritedBy Favorite[]
 }
 
 model Review {
-id                        Int       @id @default(autoincrement())
-userId                    Int
-plantId                   Int
-rating                    Int
-content                   String
-createdAt                 DateTime  @default(now())
-
-user                      User      @relation(fields: [userId], references: [id])
-plant                     Plant     @relation(fields: [plantId], references: [id])
-  
-  @@unique([userId, plantId])
-comments                  Comment[]
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  plantId     Int
+  rating      Int?
+  content     String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  plant       Plant     @relation(fields: [plantId], references: [id])
+  comments    Comment[]
 }
 
 model Comment {
-id                        Int       @id @default(autoincrement())
-userId                    Int
-reviewId                  Int
-content                   String
-createdAt                 DateTime  @default(now())
-
-user                      User      @relation(fields: [userId], references: [id])
-review                    Review    @relation(fields: [reviewId], references: [id])
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  reviewId    Int?
+  content     String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  review      Review?   @relation(fields: [reviewId], references: [id])
 }
 
+model Favorite {
+  userId      Int
+  plantId     Int
+  isFavorite  Boolean   @default(false)
+  user        User      @relation(fields: [userId], references: [id])
+  plant       Plant     @relation(fields: [plantId], references: [id])
+  @@id([userId, plantId])
+}

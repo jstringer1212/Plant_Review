@@ -1,12 +1,10 @@
-// login.js
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs'); // For password comparison
-const jwt = require('jsonwebtoken'); // For generating a JWT
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Route for logging in a user
 router.post('/', async (req, res) => {
   const { email, password } = req.body;
 
@@ -15,7 +13,6 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -24,22 +21,15 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Compare password
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({ message: 'Login successful', token, userId: user.id });
   } catch (error) {
-    console.error('Error logging in user:', error); // Log the error for debugging
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  } finally {
-    await prisma.$disconnect(); // Ensure the Prisma client is disconnected
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
