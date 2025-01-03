@@ -17,7 +17,7 @@ function App() {
     <Router>
       <div className="app-container">
         <header className="App-header">
-          <h1>Plant Review App</h1>
+          <h1 className='ui centered header'>Plant Review App</h1>
           <Navbar /> 
         </header>
         <Routes>

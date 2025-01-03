@@ -1,330 +1,44 @@
-.App-header header{
-  background-color: #282c34;
-  min-height: 100vh;
-  height: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}   
-
-.mainbg {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+img {
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+    height: 30%;
+    object-fit: cover;
 }
-.plant-list { 
-    position: absolute;
-    width: 100%;
-    justify-content: center;
-    align-content: center;  
-    display: grid;
-    padding: 2px;
-    background-color: #0bc924;
-    
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
 
-  .plant-list li {
-    position: relative;
-    max-width: 100%;
-    right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2px;
-    margin-bottom: 10px;
-    background-color: #fff;
-    border: 2px solid #000000;
+.ui.horizontal.segments {
     
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  img {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #000000;
-    height: 200px;
-    width: 200px;
-  }
-  
-  .plant-item {
-    display: grid;
-    position: relative;
-    max-width: 100%;
-    justify-content: center;
+    justify-content: left;
     align-items: left;
-    padding: 20px;
-    margin-bottom: 10px;
-    background-color: #16b330;
-    border: 1px solid #ec060600;
-    border-radius: 50%;
-    box-shadow: 0 1px 2px rgba(231, 21, 21, 0);
-  }
-
-  .detailsbox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: #2a9134;
-    border: 3px solid #000000;
-    border-radius: 20%;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-  }
-  .plant-name {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    margin-top: 10px;
-    color: #000000;
-  }
-  .detail {
-    margin: 5px;
-    border-radius: 10%;
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center; 
-    width: 210px; 
-    height: 60px; 
-    border: 1px solid #000000; 
-    padding-left: 5px;
-    padding-right: 5px; 
-    box-sizing: border-box;
-    border-radius: 40%;
-    /* background-color: #e08815; */
-  }
-  
-
-  .plants {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-wrap: wrap;
-  }
-
-  .plant-detail {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-wrap: wrap;
-    border: 2px solid #080808;
-  }
-
-  .reviews {
-    display: grid;
-    height: 100%;
-  grid-template-columns: 1fr 1fr;
-    list-style-type: none;
-    justify-content: left;
-    align-content: left;
-    flex-wrap: wrap;
-    border: 2px solid #000000;
-    background-color: rgba(23, 141, 53, 0.952);
-  }
-
-  .reviewhead {
-    list-style-type: none;
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    font-size: 32px;
-    margin-bottom: 20px;
-    color: #000000;
-    background-color: rgb(0, 255, 0);
-  }
-
-  .comments {
-    display: grid;
-    justify-content: center;
-    align-content: center;
-    flex-wrap: wrap;
-    border: 2px solid #ffffff00;
-  }
-
-  .commenthead {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #000000;
-  }
-
-  h1 {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    font-size: 48px;
-    margin-bottom: 20px;
-    color: #000000;
-  }
-  h2 {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    font-size: 48px;
-    margin-bottom: 20px;
-    color: #000000;
-  }
-
-  h3  {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    font-size: 32px;
-    margin-bottom: 20px;
-    color: #000000;
-  }
-
-  textarea {
-    width: 100%; /* Full width of the parent container */
-    height: 150px; /* Fixed height */
-    resize: none; /* Disable resizing */
-    padding: 10px; /* Add some inner spacing */
-    font-size: 16px; /* Adjust font size */
-    border: 1px solid #ddd; /* Border styling */
-    border-radius: 5px; /* Rounded corners */
-    box-sizing: border-box; /* Include padding and border in width/height */
-  }
-  
-
-  form {
-    display: vertical;
-    justify-content: center;
-    align-content: center;
-    flex-wrap: wrap;
-    border: 2px solid #000000;
-    background-color: #0c5515;
-  }
-
-  .add-review {    
-    justify-content: center;
-    align-content: center;
-    flex-wrap: wrap;
-    border: 2px solid #030303;
-    background-color: #0c5515;
-  }
-
-  .RplusC {
-    list-style-type: none;
-    
-    width: 99%;
-    
-    justify-content: left;
-    align-content: left;
-    flex-wrap: wrap;
-    border: 2px solid #000000;
-    background-color: #e08815;
-  }
-
-  .button {
-    display: grid;
-    justify-content: center;
-    align-content: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #000000;
-    background-color: #b876a7;
-    border-radius: 10%;
-  }
-
-  .button:hover {
-    background-color: #6eaf76;
-  }
-
-  .add-comment button {
-    margin-right: 8px;
-    padding: 8px 12px;
-    font-size: 14px;
-    background-color: #6eaf76;
-  }
-  
-  .add-comment textarea {
-    width: 100%;
-    height: 30px;
-    margin-bottom: 8px;
-    padding: 8px;
-    font-size: 14px;
-    background-color: #00000000;
-  }
-  
-  .add-comment div {
-    display: flex;
-    gap: 8px;
-  }
- 
-  .add-review textarea {
-    width: 100%;
-    height: 30px;
-    margin-bottom: 8px;
-    padding: 8px;
-    font-size: 14px;
-    background-color: #0cf00c;
-  }
-
-  .delete-button {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    font-size: 12px;
-    margin-bottom: 20px;
-    color: #000000;
-    background-color: #6eaf76;
-    border-radius: 10%;
-  }
-
-.favorite-button { 
-  display: grid;
-  background: none;
-  border: none;
-  cursor: pointer;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #16e016;
+    margin: 10px;
+    padding: 10px;
+    max-height: 500px;
 }
 
+.plant-item {
+  width: 300px;
+}
 
+.ui.grid {
+    margin: 10px;
+    padding: 10px;
+}
 
+.ui.centered.header {
+    margin: 10px;
+    padding: 10px;
+}
 
+.plant-item {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid #f1f1f1;
+}
 
-
-
-  /* stars */
-
-  .star-rating {
-    font-size: 30px;
-    cursor: pointer;
-    color: gray; /* Default color for empty stars */
-  }
-  
-  .star-rating .filled {
-    color: gold; /* Color for filled stars */
-  }
-  
-  .star {
-    margin-right: 5px;
-    transition: color 0.2s ease; /* Smooth transition when stars are clicked */
-  }
-  
-  .star:hover {
-    color: gold; /* Hover effect for stars */
-  }
-  
+.ui.icon.button {
+  height: 50px;
+  width: 50px;
+  margin: 10px;
+  padding: 4px;
+  border-radius: 100%;
+}

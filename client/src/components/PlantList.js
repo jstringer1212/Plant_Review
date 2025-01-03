@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';  // Import PropTypes
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import FavoriteButton from './favButton';
-
 
 const PlantList = () => {
   const [plants, setPlants] = useState([]);
@@ -10,7 +9,7 @@ const PlantList = () => {
   const [error, setError] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const userId = localStorage.getItem('userId');
-  
+
   useEffect(() => {
     const fetchPlants = async () => {
       try {
@@ -28,8 +27,31 @@ const PlantList = () => {
       }
     };
 
+    const fetchFavorites = async () => {
+      if (!userId) {
+        console.warn('User ID is not available; fetchFavorites will not be called.');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/favorites`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch favorites');
+        }
+        const favoriteData = await response.json();
+        const userFavorites = favoriteData
+          .filter((favorite) => favorite.userId === parseInt(userId, 10))
+          .map((favorite) => favorite.plantId); // Extract plant IDs for user's favorites
+        setFavorites(userFavorites); // Update favorites with the array of plant IDs
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    };
+
     fetchPlants();
-  }, []);
+    if (userId) fetchFavorites();
+  }, [userId]);
+
+  const isFavorite = (plantId) => favorites.includes(plantId);
 
   if (loading) return <p>Loading plants...</p>;
   if (error) return <p className="error">{error}</p>;
@@ -37,8 +59,7 @@ const PlantList = () => {
   const sortedPlants = plants.sort((a, b) => a.cName.localeCompare(b.cName));
 
   return (
-    <div>
-      <h2>Plant Review App</h2>
+    <div className="ui grid">
       {sortedPlants.length > 0 ? (
         sortedPlants.map((plant) => (
           <div
@@ -48,30 +69,25 @@ const PlantList = () => {
               backgroundColor: plant.pColor || 'white',
             }}
           >
-            <div className='plant-name'>{plant.cName} </div>
-            <div className='detailsbox'>
+            <div className="ui centered header">{plant.cName}</div>
+            <div>
               <ul>
-                <li className='detail'>Genus</li>
-                <li className='detail'>Species</li>
-                <li className='detail'>Primary Color</li>
-                <li className='detail'>Secondary Color</li>
-              </ul>
-              <ul>
-                <li className='detail'>{plant.genus}</li>
-                <li className='detail'>{plant.species}</li>
-                <li className='detail'>{plant.pColor}</li>
-                <li className='detail'>{plant.sColor}</li>
+                <li className="detail">Genus: {plant.genus}</li>
+                <li className="detail">Species: {plant.species}</li>
+                <li className="detail">Primary Color: {plant.pColor}</li>
+                <li className="detail">Secondary Color: {plant.sColor}</li>
               </ul>
             </div>
             <img src={plant.imageUrl} alt={plant.cName} />
             <Link to={`/plants/${plant.id}`}>
-              <button className='button'>View Details</button>
+              <button className="ui primary button">Plant Details</button>
             </Link>
+            <div className='ui icon button'>
             <FavoriteButton
               userId={userId}
               plantId={plant.id}
-              initialFavorite={plant.isFavorite || false}
-            />
+              initialFavorite={isFavorite(plant.id)} // Determine if the plant is a favorite
+            /></div>
           </div>
         ))
       ) : (
@@ -97,7 +113,9 @@ PlantList.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.string,
   favorites: PropTypes.arrayOf(PropTypes.string),
-  setFavorites: PropTypes.func.isRequired,
+  setFavorites: PropTypes.func,
 };
 
 export default PlantList;
+
+

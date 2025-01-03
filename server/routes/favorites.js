@@ -3,6 +3,29 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+// Helper function for input validation
+function validateFavoriteInput(data) {
+  const errors = [];
+
+  if (!data.userId) {
+    errors.push('User ID is required.');
+  } else if (isNaN(parseInt(data.userId, 10))) {
+    errors.push('User ID must be a valid number.');
+  }
+
+  if (!data.plantId) {
+    errors.push('Plant ID is required.');
+  }
+
+  if (typeof data.isFavorite === 'undefined') {
+    errors.push('isFavorite field is required.');
+  } else if (typeof data.isFavorite !== 'boolean') {
+    errors.push('isFavorite must be a boolean value.');
+  }
+
+  return errors;
+}
+
 // Get all favorites
 router.get('/', async (req, res) => {
   try {
@@ -14,24 +37,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Add a favorite
+// Add or remove a favorite
 router.post('/', async (req, res) => {
   const { userId, plantId, isFavorite } = req.body;
-  console.log('Received data:', { userId, plantId, isFavorite });
 
   // Validate inputs
-  if (!userId || !plantId || typeof isFavorite === 'undefined') {
-    return res.status(400).json({ error: 'Missing required fields' });
+  const validationErrors = validateFavoriteInput(req.body);
+  if (validationErrors.length > 0) {
+    return res.status(400).json({ errors: validationErrors });
   }
 
+  const userIdInt = parseInt(userId, 10); // Convert userId to integer
+
   try {
-    const userIdInt = parseInt(userId, 10); // Convert userId to integer
-    if (isNaN(userIdInt)) {
-      return res.status(400).json({ error: 'Invalid userId' });
-    }
-
-    console.log('User ID (converted):', userIdInt);
-
     const existingFavorite = await prisma.favorite.findUnique({
       where: {
         userId_plantId: {
@@ -44,7 +62,7 @@ router.post('/', async (req, res) => {
     if (existingFavorite) {
       // If the favorite already exists
       if (!isFavorite) {
-        // Trying to unfavorite (remove)
+        // Remove favorite
         await prisma.favorite.delete({
           where: {
             userId_plantId: {
@@ -55,13 +73,13 @@ router.post('/', async (req, res) => {
         });
         return res.status(200).json({ message: 'Favorite removed' });
       } else {
-        // Trying to add a favorite that already exists
+        // Favorite already exists and is being re-added
         return res.status(400).json({ error: 'Favorite already exists' });
       }
     } else {
       // If the favorite doesn't exist
       if (isFavorite) {
-        // Trying to add a new favorite
+        // Add a new favorite
         const newFavorite = await prisma.favorite.create({
           data: {
             userId: userIdInt,
@@ -71,7 +89,7 @@ router.post('/', async (req, res) => {
         });
         return res.status(201).json(newFavorite);
       } else {
-        // Trying to unfavorite but it doesn't exist
+        // Trying to unfavorite a non-existent favorite
         return res.status(400).json({ error: 'Favorite does not exist to remove' });
       }
     }
@@ -84,21 +102,18 @@ router.post('/', async (req, res) => {
 // Delete a favorite
 router.delete('/', async (req, res) => {
   const { userId, plantId } = req.body;
-  console.log('Received data:', { userId, plantId });
 
   // Validate inputs
-  if (!userId || !plantId) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  const errors = [];
+  if (!userId) errors.push('User ID is required.');
+  if (!plantId) errors.push('Plant ID is required.');
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
   }
 
+  const userIdInt = parseInt(userId, 10); // Convert userId to integer
+
   try {
-    const userIdInt = parseInt(userId, 10); // Convert userId to integer
-    if (isNaN(userIdInt)) {
-      return res.status(400).json({ error: 'Invalid userId' });
-    }
-
-    console.log('User ID (converted):', userIdInt);
-
     const existingFavorite = await prisma.favorite.findUnique({
       where: {
         userId_plantId: {
@@ -109,7 +124,7 @@ router.delete('/', async (req, res) => {
     });
 
     if (existingFavorite) {
-      // If the favorite exists, delete it
+      // Remove favorite
       await prisma.favorite.delete({
         where: {
           userId_plantId: {
@@ -127,6 +142,5 @@ router.delete('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to remove favorite' });
   }
 });
-
 
 module.exports = router;
