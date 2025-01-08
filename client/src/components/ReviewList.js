@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { api } from '../api';
+import { useAuth } from './Login';
 import CommentList from './CommentList';
 import AddComment from './AddComment';
-import { useAuth } from './Login';
-import PropTypes from 'prop-types';
-// import AddReview from './AddReview';
 
 const ReviewList = ({ plantId, plantName }) => {
   const [reviews, setReviews] = useState([]);
@@ -21,10 +20,9 @@ const ReviewList = ({ plantId, plantName }) => {
         }
 
         const reviewsData = reviewResponse.data.filter((review) => review.plantId === plantId);
-
-        // Use Map to fetch unique user details
         const uniqueUserIds = [...new Set(reviewsData.map((review) => review.userId))];
         const usersResponse = await api.get(`/users?ids=${uniqueUserIds.join(',')}`);
+
         if (usersResponse.status !== 200) {
           throw new Error('Failed to fetch user details');
         }
@@ -41,7 +39,7 @@ const ReviewList = ({ plantId, plantName }) => {
 
         setReviews(reviewsWithUsers);
       } catch (err) {
-        console.error('Error fetching reviews with user details:', err);
+        console.error('Error fetching reviews:', err);
         setError('Failed to load reviews. Please try again later.');
       } finally {
         setLoading(false);
@@ -53,9 +51,7 @@ const ReviewList = ({ plantId, plantName }) => {
 
   const handleDelete = async (reviewId) => {
     try {
-      const response = await api.delete(`/reviews/${reviewId}`, {
-        data: { plantId }, // Send the plantId along with the request
-      });
+      const response = await api.delete(`/reviews/${reviewId}`);
       if (response.status === 200) {
         setReviews((prevReviews) => prevReviews.filter((review) => review.id !== reviewId));
       } else {
@@ -64,52 +60,50 @@ const ReviewList = ({ plantId, plantName }) => {
     } catch (err) {
       console.error('Error deleting review:', err);
       setError('Failed to delete review. Please try again later.');
-  
-      setTimeout(() => {
-        setError(null);
-      }, 3000);
+
+      // Clear the error message after 3 seconds
+      setTimeout(() => setError(null), 3000);
     }
   };
-  
 
   if (loading) return <p>Loading reviews...</p>;
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="reviews" >
+    <div>
       <h2>Reviews for {plantName}</h2>
       {reviews.length > 0 ? (
-        <ul>
+        <div className="ui comments">
           {reviews.map((review) => (
-            <li key={review.id}>
-              <h4>{review.userFullName}</h4>
-              <p>{review.content}</p>
-              <div className="star-rating">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    className={`star ${star <= review.rating ? 'filled' : ''}`}
+            <div key={review.id} className="comment">
+              <h3 className="ui dividing header">Reviews</h3>
+              <div className="content">
+                <span className="author">{review.userFullName}</span>
+                <p>{review.content}</p>
+                <div className="star-rating">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={`star ${star <= review.rating ? 'filled' : ''}`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                {auth && auth.userId === review.userId && (
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDelete(review.id)}
                   >
-                    ★
-                  </span>
-                ))}
-              </div>
-              {/* <AddReview plantId={plantId} /> */}
-              <div className="comments">
-              {auth && auth.userId === review.userId && (
-                <button
-                  className="delete-button"
-                  onClick={() => handleDelete(review.id)}
-                >
-                  Delete Review
-                </button>
-              )}
+                    Delete Review
+                  </button>
+                )}
                 <CommentList reviewId={review.id} />
-                <AddComment reviewId={review.id} /> 
+                <AddComment reviewId={review.id} />
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
         <p>No reviews available for this plant. Be the first to leave a review!</p>
       )}
@@ -121,4 +115,5 @@ ReviewList.propTypes = {
   plantId: PropTypes.number.isRequired,
   plantName: PropTypes.string.isRequired,
 };
+
 export default ReviewList;

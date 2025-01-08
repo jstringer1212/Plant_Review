@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './Login';
 
+
 const Home = () => {
   const [plants, setPlants] = useState([]);
   const [randomPlant, setRandomPlant] = useState(null);
   const { auth } = useAuth();
-  const [userName, setUserName] = useState({ firstName: '', lastName: '' }); 
+  const [userName, setUserName] = useState({ firstName: '', lastName: '' });
+   
 
   // Log the auth object to verify its structure and values
   // console.log('Auth object:', auth);
@@ -29,7 +31,7 @@ const Home = () => {
         console.error('Error fetching plants:', error);
       }
     };
-
+    
     fetchPlants();
   }, []);
 
@@ -66,37 +68,35 @@ const Home = () => {
   };
 
   return (
+
     <div>
-      <h2>Welcome {userName.firstName || 'Guest'} to the Plant Review App</h2>
+      <h2 className='ui centered header'>Welcome {userName.firstName || 'Guest'} </h2>
       <div className="plants">
+      
         {randomPlant ? (
           <div
-            className="plant-item"
+            className="ui centered card"
             style={{
-              backgroundColor: randomPlant.pColor || 'white',
+              backgroundColor: "rgb(245, 242, 242)",
             }}
           >
-            <h2>{randomPlant.cName}</h2>
-            <div className='detailsbox'>
-                       
-          <ul>
-            <li className='detail'>Genus</li>
-            <li className='detail'>Species</li>
-            <li className='detail'>Primary Color</li>
-            <li className='detail'>Secondary Color</li>
-          </ul>
-          <ul>
-            <li className='detail'>{randomPlant.genus}</li>
-            <li className='detail'>{randomPlant.species}</li>
-            <li className='detail'>{randomPlant.pColor}</li>
-            <li className='detail'>{randomPlant.sColor}</li>
-            </ul>
-          </div>
-            <img src={randomPlant.imageUrl} alt={randomPlant.cName} />
-            <button className='button' onClick={handleRefresh}>Get Another Random Plant</button>
+            <img src={randomPlant.imageUrl} alt={randomPlant.cName} className='ui small centered bordered image'/>
+            <h1 className='ui centered header'>{randomPlant.cName}</h1>
+            <div role="list" className="ui list">
+                <div role="listitem" className="item"><div className="header">Genus:</div>{randomPlant.genus}</div>
+                <div role="listitem" className="item"><div className="header">Species:</div>{randomPlant.species}</div>
+                <div role="listitem" className="item"><div className="header">Primary Color:</div>{randomPlant.pColor}</div>
+                <div role="listitem" className="ui centered segment" style={{backgroundColor: randomPlant.pColor, width: '100%',height: '50px', border: '3px solid'}}></div>
+                <div role="listitem" className="item"><div className="header">Secondary Color:</div>{randomPlant.sColor}</div>
+                <div role="listitem" className="ui centered segment" style={{backgroundColor: randomPlant.sColor, width: '100%',height: '50px', border: '3px solid'}}></div>
+            </div> 
+            
+            <div className='ui centered grid'>
+            <button className="ui button" onClick={handleRefresh}>Get Another Random Plant</button>
             <Link to={`/plants/${randomPlant.id}`}>
-              <button className='button'>Go to Plant Page</button>
+              <button className="ui button">Go to Plant Page</button>
             </Link>
+            </div>
           </div>
         ) : (
           <p>Loading a featured plant...</p>

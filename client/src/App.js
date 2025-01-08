@@ -10,6 +10,7 @@ import ReviewList from './components/ReviewList';
 import ReviewDetail from './components/ReviewDetail';
 import Account from './components/Account';
 import Home from './components/Home';
+import Admin from './components/Admin';
 import './Styler/AllStyles.css';
 
 function App() {
@@ -17,7 +18,6 @@ function App() {
     <Router>
       <div className="app-container">
         <header className="App-header">
-          <h1 className='ui centered header'>Plant Review App</h1>
           <Navbar /> 
         </header>
         <Routes>
@@ -29,6 +29,8 @@ function App() {
           <Route path="/reviews" element={<ReviewList />} />
           <Route path="/" element={<Home />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/admin" element={<Admin />} />
+
         </Routes>
       </div>
     </Router>

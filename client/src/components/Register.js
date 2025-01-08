@@ -6,6 +6,9 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+const [lastName, setLastName] = useState('');
+
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -17,7 +20,7 @@ const Register = () => {
     }
 
     try {
-      const response = await api.post('/register', { email, password });
+      const response = await api.post('/register', { firstName, lastName, email, password });
       localStorage.setItem('token', response.data.token); // Save JWT token
       navigate('/'); // Redirect to home or dashboard
     } catch (err) {
@@ -26,39 +29,58 @@ const Register = () => {
   };
 
   return (
-    <div>
+    
+    <div className='ui centered grid'>
+      <form className='ui form' onSubmit={handleSubmit}>
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
+      <div className='field'>
+        <input
+          type="text"
+          placeholder="First Name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+      </div>
+      <div className='field'>
+        <input
+          type="text"
+          placeholder="Last Name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          required
+        />
+      </div>
+      <div className='field'>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div className='field'>
+        <input
+          type="password"
+          placeholder='Password'
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+      </div>
+      <div className='field'>
+        <input
+          type="password"
+          placeholder='Confirm Password'
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+      </div>
         {error && <p>{error}</p>}
-        <button type="submit">Register</button>
-      </form>
+      <button className='ui button' type="submit">Register</button>
+    </form>
     </div>
   );
 };

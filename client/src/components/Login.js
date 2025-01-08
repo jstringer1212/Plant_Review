@@ -42,8 +42,6 @@ const Login = () => {
         setAuth({ token, userId });
         localStorage.setItem('token', token);
         localStorage.setItem('userId', userId);
-        
-        console.log('Login successful:', { token, userId });
 
         // Redirect to home page
         navigate('/');
@@ -56,7 +54,8 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <div className='ui centered grid'>
+    <form className='ui form' onSubmit={handleLogin}>
       <input
         type="email"
         placeholder="Email"
@@ -69,9 +68,12 @@ const Login = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button type="submit">Login</button>
+      <button className='ui button' type="submit">Login</button>
     </form>
-  );
+    </div>
+
+
+);
 };
 
 export default Login;

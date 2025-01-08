@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import { useAuth } from './Login';
+import PropTypes from 'prop-types';
 
 const CommentList = ({ plantId, reviewId }) => {
   const [comments, setComments] = useState([]);
@@ -17,7 +18,9 @@ const CommentList = ({ plantId, reviewId }) => {
           throw new Error('Failed to fetch comments');
         }
 
-        const commentsData = commentResponse.data.filter((comment) => comment.reviewId === reviewId);
+        const commentsData = commentResponse.data.filter(
+          (comment) => comment.reviewId === reviewId
+        );
 
         // Fetch user details for each comment
         const commentsWithUsers = await Promise.all(
@@ -52,7 +55,9 @@ const CommentList = ({ plantId, reviewId }) => {
     try {
       const response = await api.delete(`/comments/${commentId}`);
       if (response.status === 200) {
-        setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
+        setComments((prevComments) =>
+          prevComments.filter((comment) => comment.id !== commentId)
+        );
       } else {
         throw new Error('Failed to delete comment');
       }
@@ -60,6 +65,7 @@ const CommentList = ({ plantId, reviewId }) => {
       console.error('Error deleting comment:', err);
       setError('Failed to delete comment. Please try again later.');
 
+      // Clear the error after 3 seconds
       setTimeout(() => {
         setError(null);
       }, 3000);
@@ -70,25 +76,41 @@ const CommentList = ({ plantId, reviewId }) => {
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="comment-list">
-      <ul>
-        {comments.map((comment) => (
-          <li key={comment.id}>
-            <h4>{comment.userFullName}</h4>
-            <p>{comment.content}</p>
-            {auth && auth.userId === comment.userId && (
-              <button
-                className="delete-button"
-                onClick={() => handleDelete(comment.id)}
+    <div className="ui comments">
+      <h3 className="ui dividing header">Comments</h3>
+      {comments.length > 0 ? (
+        comments.map((comment) => (
+          <div key={comment.id} className="comment">
+            <div className="content">
+              <span
+                className="author"
+                aria-label={`Comment by ${comment.userFullName}`}
               >
-                Delete Comment
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+                {comment.userFullName}
+              </span>
+              <div className="text">{comment.content}</div>
+              {auth && auth.userId === comment.userId && (
+                <button
+                  className="ui red button delete-button"
+                  onClick={() => handleDelete(comment.id)}
+                  aria-label="Delete comment"
+                >
+                  Delete Comment
+                </button>
+              )}
+            </div>
+          </div>
+        ))
+      ) : (
+        <p>No comments yet. Be the first to add one!</p>
+      )}
     </div>
   );
+};
+
+CommentList.propTypes = {
+  plantId: PropTypes.number.isRequired, // plantId must be a number and required
+  reviewId: PropTypes.number.isRequired, // reviewId must be a number and required
 };
 
 export default CommentList;

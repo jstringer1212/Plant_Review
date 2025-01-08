@@ -8,6 +8,7 @@ const PlantList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -53,47 +54,98 @@ const PlantList = () => {
 
   const isFavorite = (plantId) => favorites.includes(plantId);
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase()); // Update the search term
+  };
+
+  // Filter plants based on the search term
+  const filteredPlants = plants.filter((plant) =>
+    plant.cName.toLowerCase().includes(searchTerm)
+  );
+
   if (loading) return <p>Loading plants...</p>;
   if (error) return <p className="error">{error}</p>;
 
-  const sortedPlants = plants.sort((a, b) => a.cName.localeCompare(b.cName));
+  const sortedPlants = filteredPlants.sort((a, b) => a.cName.localeCompare(b.cName));
 
   return (
-    <div className="ui grid">
-      {sortedPlants.length > 0 ? (
-        sortedPlants.map((plant) => (
-          <div
-            key={plant.id}
-            className="plant-item"
-            style={{
-              backgroundColor: plant.pColor || 'white',
-            }}
-          >
-            <div className="ui centered header">{plant.cName}</div>
-            <div>
-              <ul>
-                <li className="detail">Genus: {plant.genus}</li>
-                <li className="detail">Species: {plant.species}</li>
-                <li className="detail">Primary Color: {plant.pColor}</li>
-                <li className="detail">Secondary Color: {plant.sColor}</li>
-              </ul>
+    <>
+      {/* Search bar */}
+      <div className="ui search">
+        <div className="ui icon input">
+          <input
+            type="text"
+            placeholder="Search plants..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="prompt"
+          />
+          <i className="search icon"></i>
+        </div>
+      </div>
+
+      {/* Plant list */}
+      <div className="ui centered grid">
+        {sortedPlants.length > 0 ? (
+          sortedPlants.map((plant) => (
+            <div key={plant.id} className="ui card">
+              <img src={plant.imageUrl} alt={plant.cName} className="ui centered bordered image" />
+              <h1 className="ui centered header">{plant.cName}</h1>
+              <div role="list" className="ui list">
+                <div role="listitem" className="item">
+                  <div className="header">Genus:</div>
+                  {plant.genus}
+                </div>
+                <div role="listitem" className="item">
+                  <div className="header">Species:</div>
+                  {plant.species}
+                </div>
+                <div role="listitem" className="item">
+                  <div className="header">Primary Color:</div>
+                  {plant.pColor}
+                </div>
+                <div
+                  className="ui centered segment"
+                  style={{
+                    backgroundColor: plant.pColor,
+                    width: '100%',
+                    height: '50px',
+                    border: '3px solid',
+                  }}
+                ></div>
+                <div role="listitem" className="item">
+                  <div className="header">Secondary Color:</div>
+                  {plant.sColor}
+                </div>
+                <div
+                  className="ui centered segment"
+                  style={{
+                    backgroundColor: plant.sColor,
+                    width: '100%',
+                    height: '50px',
+                    border: '3px solid',
+                  }}
+                ></div>
+              </div>
+              <div className="ui centered grid">
+                <Link to={`/plants/${plant.id}`}>
+                  <button className="ui button">See Plant Details</button>
+                </Link>
+                <div className="ui icon heart button">
+                  <FavoriteButton
+                    userId={Number(localStorage.getItem('userId'))}
+                    plantId={plant.id}
+                    initialFavorite={isFavorite(plant.id)} // Determine if the plant is a favorite
+                  />
+                </div>
+              </div>
             </div>
-            <img src={plant.imageUrl} alt={plant.cName} />
-            <Link to={`/plants/${plant.id}`}>
-              <button className="ui primary button">Plant Details</button>
-            </Link>
-            <div className='ui icon button'>
-            <FavoriteButton
-              userId={userId}
-              plantId={plant.id}
-              initialFavorite={isFavorite(plant.id)} // Determine if the plant is a favorite
-            /></div>
-          </div>
-        ))
-      ) : (
-        <p>No plants available.</p>
-      )}
-    </div>
+          ))
+        ) : (
+          <p>No plants available.</p>
+        )}
+      </div>
+    </>
   );
 };
 
@@ -117,5 +169,3 @@ PlantList.propTypes = {
 };
 
 export default PlantList;
-
-
