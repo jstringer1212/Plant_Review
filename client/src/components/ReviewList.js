@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { api } from '../api';
-import { useAuth } from '../contexts/AuthContext';
 import CommentList from './CommentList';
 
 const ReviewList = ({ plantId }) => {
@@ -10,16 +9,26 @@ const ReviewList = ({ plantId }) => {
   const [error, setError] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [reviewText, setReviewText] = useState('');
-  const { auth } = useAuth(); // Get auth from context
-  const [users, setUsers] = useState({}); // Store user details by userId
+  const [users, setUsers] = useState({}); // Cache user details by userId
+
+  // Utility to get token and userId from localStorage
+  const getUserInfo = () => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    return { token, userId };
+  };
+
+  const { token, userId } = getUserInfo();
 
   // Function to fetch user details by userId
   const fetchUserById = async (userId) => {
+    if (users[userId]) return; // Skip if user is already cached
+
     try {
-      const response = await api.get(`/users/${userId}`); // Assuming this is the endpoint for fetching users
+      const response = await api.get(`/users/${userId}`);
       if (response.status === 200) {
-        setUsers((prevUsers) => ({
-          ...prevUsers,
+        setUsers((prev) => ({
+          ...prev,
           [userId]: {
             firstName: response.data.firstName,
             lastName: response.data.lastName,
@@ -27,27 +36,23 @@ const ReviewList = ({ plantId }) => {
         }));
       }
     } catch (err) {
-      console.error('Error fetching user data:', err);
+      console.error('Error fetching user details:', err);
     }
   };
 
-  // Fetch reviews when component mounts
+  // Fetch reviews when the component mounts
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviewResponse = await api.get(`/reviews?plantId=${plantId}`);
-        if (reviewResponse.status !== 200) {
+        const response = await api.get(`/reviews?plantId=${plantId}`);
+        if (response.status !== 200) {
           throw new Error('Failed to fetch reviews');
         }
 
-        setReviews(reviewResponse.data);
+        setReviews(response.data);
 
-        // Fetch user data for each review
-        reviewResponse.data.forEach((review) => {
-          if (!users[review.userId]) {
-            fetchUserById(review.userId); // Only fetch if not already in state
-          }
-        });
+        // Fetch user details for each review
+        response.data.forEach((review) => fetchUserById(review.userId));
       } catch (err) {
         console.error('Error fetching reviews:', err);
         setError('Failed to load reviews. Please try again later.');
@@ -57,12 +62,10 @@ const ReviewList = ({ plantId }) => {
     };
 
     fetchReviews();
-  }, [plantId, users]);
+  }, [plantId]);
 
   const handleAddReview = async () => {
-    const token = auth?.token || localStorage.getItem('token');
-    
-    if (!token || !auth?.userId) {
+    if (!token || !userId) {
       setError('Please log in to add a review.');
       return;
     }
@@ -71,7 +74,7 @@ const ReviewList = ({ plantId }) => {
       try {
         const response = await api.post(
           '/reviews',
-          { plantId, content: reviewText, userId: auth.userId },
+          { plantId, content: reviewText, userId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -80,7 +83,9 @@ const ReviewList = ({ plantId }) => {
             ...prev,
             {
               ...response.data.review,
-              userFullName: auth ? `${auth.firstName} ${auth.lastName}` : '',
+              userFullName: `${users[userId]?.firstName || 'User'} ${
+                users[userId]?.lastName || ''
+              }`,
             },
           ]);
           setReviewText('');
@@ -114,15 +119,15 @@ const ReviewList = ({ plantId }) => {
       {reviews.length > 0 ? (
         reviews.map((review) => {
           const user = users[review.userId];
-          const userFullName = user ? `${user.firstName} ${user.lastName}` : 'Unknown User';
+          const userFullName = user
+            ? `${user.firstName} ${user.lastName}`
+            : 'Unknown User';
           return (
             <div key={review.id} className="review-item">
               <h5 className="review">{userFullName}</h5>
               <div className="review-text">
                 <p>{review.content}</p>
               </div>
-
-              {/* Show comments related to this review */}
               <CommentList plantId={plantId} reviewId={review.id} />
             </div>
           );
@@ -133,7 +138,7 @@ const ReviewList = ({ plantId }) => {
 
       {/* Add review form */}
       <div className="add-review">
-        {auth && auth.userId ? (
+        {token && userId ? (
           showInput ? (
             <>
               <textarea
@@ -141,10 +146,17 @@ const ReviewList = ({ plantId }) => {
                 onChange={(e) => setReviewText(e.target.value)}
                 placeholder="Write your review..."
                 rows="3"
-                onKeyPress={handleKeyPress} // Handle Enter press
+                onKeyPress={handleKeyPress}
               />
               <div>
-                <button onClick={() => { setShowInput(false); setReviewText(''); }}>Cancel</button>
+                <button
+                  onClick={() => {
+                    setShowInput(false);
+                    setReviewText('');
+                  }}
+                >
+                  Cancel
+                </button>
                 <button onClick={handleAddReview}>Submit</button>
               </div>
             </>
@@ -152,7 +164,7 @@ const ReviewList = ({ plantId }) => {
             <button onClick={() => setShowInput(true)}>Add Review</button>
           )
         ) : (
-          <button onClick={() => console.log('Redirect to login')}>
+          <button onClick={() => alert('Redirecting to login page...')}>
             Log in to review
           </button>
         )}

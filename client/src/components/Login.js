@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Access AuthContext
 import { api } from '../api'; // Utility for API requests
 import '../Styler/Login.css'; // Optional: Add custom styles
 
@@ -8,23 +7,28 @@ const Login = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // For button state
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use AuthContext to manage auth state
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    const loginData = { email, password };
+    setIsLoading(true);
+    setError('');
 
     try {
-      const response = await api.post('/login', loginData);
-      console.log("response: ", response.data);
+      const response = await api.post('/login', { email, password });
+
       if (response.status === 200) {
-        const { token, userId, role } = response.data;
-        console.log("user: ", userId, "admin?: ", role); //this returns the userId
-        // Store token and set auth state
+        // console.log('response data', response.data);
+        const { token, userId, role, firstName, lastName } = response.data;
+        // console.log("User ID:", userId, "Role:", role);
+
+        // Store token and user data
         localStorage.setItem('token', token);
-        login({ userId, role, token });
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('role', role);
+        localStorage.setItem('firstName', firstName);
+        localStorage.setItem('lastName', lastName);
 
         if (onClose) {
           onClose(); // Close modal if triggered from modal
@@ -37,6 +41,8 @@ const Login = ({ onClose }) => {
     } catch (err) {
       setError('An error occurred while logging in.');
       console.error('Login error:', err);
+    } finally {
+      setIsLoading(false); // Re-enable the button
     }
   };
 
@@ -51,6 +57,7 @@ const Login = ({ onClose }) => {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
         <div className="form-group">
@@ -61,14 +68,16 @@ const Login = ({ onClose }) => {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
 
       {error && <p className="error-message">{error}</p>}
 
-      {/* Optional close button for modal */}
       {onClose && (
         <button className="modal-close-button" onClick={onClose}>
           Close

@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 // Create a comment
 router.post('/', async (req, res) => {
   const { content, userId, reviewId } = req.body;
-  console.log(req.body);
+  console.log("req body", req.body);
   // Validate required fields
   if (!content || !userId || !reviewId) {
     return res.status(400).json({ error: 'Content, userId, and reviewId are required' });
@@ -26,9 +26,9 @@ router.post('/', async (req, res) => {
     // Create a new comment
     const newComment = await prisma.comment.create({
       data: {
-        content,
-        userId,
-        reviewId,
+        content: content,
+    userId: userId,  //returning undefined
+    reviewId: reviewId,
       },
     });
 

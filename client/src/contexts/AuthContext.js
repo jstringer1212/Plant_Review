@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
 export const AuthContext = createContext();
@@ -8,19 +7,21 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const savedToken = localStorage.getItem('authToken');
-    if (savedToken) {
-      setAuth({ token: savedToken, userId: 'user-id-placeholder' });
+    const savedUserId = localStorage.getItem('userId'); // Retrieve userId from local storage
+    if (savedToken && savedUserId) {
+      setAuth({ token: savedToken, userId: savedUserId });
     }
-    // No redirect here
   }, []);
 
-  const login = (token) => {
+  const login = (token, userId) => {
     localStorage.setItem('authToken', token);
-    setAuth({ token });
+    localStorage.setItem('userId', userId); // Save userId to local storage
+    setAuth({ token, userId });
   };
 
   const logout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userId'); // Clear userId from local storage
     setAuth(null);
   };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { api } from '../api';
-import { useAuth } from '../contexts/AuthContext';
 
 const CommentList = ({ plantId, reviewId }) => {
   const [comments, setComments] = useState([]);
@@ -10,7 +9,10 @@ const CommentList = ({ plantId, reviewId }) => {
   const [error, setError] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
-  const { auth } = useAuth();
+
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  const userFullName = `${localStorage.getItem('firstName')} ${localStorage.getItem('lastName')}`;
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -37,9 +39,9 @@ const CommentList = ({ plantId, reviewId }) => {
   }, [plantId, reviewId]);
 
   const handleAddComment = async () => {
-    const token = auth?.token || localStorage.getItem('token');
-
-    if (!token || !auth?.userId) {
+    console.log("userID: ", userId);
+    console.log("token: ", token)
+    if (!token || !userId) {
       setError('Please log in to comment.');
       return;
     }
@@ -50,7 +52,7 @@ const CommentList = ({ plantId, reviewId }) => {
       try {
         const response = await api.post(
           '/comments',
-          { reviewId, content: commentText, userId: auth.userId },
+          { reviewId, content: commentText, userId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -59,18 +61,18 @@ const CommentList = ({ plantId, reviewId }) => {
             ...prev,
             {
               ...response.data.comment,
-              userFullName: `${auth.firstName} ${auth.lastName}`,
+              userFullName,
             },
           ]);
           setCommentText('');
           setShowInput(false);
           setError(null);
         } else {
-          throw new Error('Failed to add comment');
+          throw new Error('Failed to add comment 1');
         }
       } catch (err) {
         console.error('Error adding comment:', err);
-        setError('Failed to add comment. Please try agaiin later.');
+        setError('Failed to add comment. Please try again later.');
       } finally {
         setIsSubmitting(false); // Reset submitting state
       }
@@ -81,7 +83,9 @@ const CommentList = ({ plantId, reviewId }) => {
 
   const handleDelete = async (commentId) => {
     try {
-      const response = await api.delete(`/comments/${commentId}`);
+      const response = await api.delete(`/comments/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.status === 200) {
         setComments((prevComments) =>
           prevComments.filter((comment) => comment.id !== commentId)
@@ -113,7 +117,7 @@ const CommentList = ({ plantId, reviewId }) => {
           <div key={comment.id} className="comment">
             <div className="comment-header">
               <div className="comment-info">
-                <span className="author">{comment.userFullName}</span>
+                <span className="author">{userFullName}</span>
                 <div className="metadata">
                   <span className="date">
                     {new Date(comment.createdAt).toLocaleString()}
@@ -124,7 +128,7 @@ const CommentList = ({ plantId, reviewId }) => {
             <div className="comment-text">
               <p>{comment.content}</p>
             </div>
-            {auth && auth.userId === comment.userId && (
+            {userId && userId === comment.userId && (
               <button
                 className="ui red button delete-button"
                 onClick={() => handleDelete(comment.id)}
@@ -137,7 +141,7 @@ const CommentList = ({ plantId, reviewId }) => {
       )}
 
       <div className="add-comment">
-        {auth && auth.userId ? (
+        {token && userId ? (
           showInput ? (
             <>
               <textarea
