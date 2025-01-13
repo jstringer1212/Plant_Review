@@ -3,41 +3,51 @@ import PropTypes from 'prop-types';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import CommentList from './CommentList';
-import AddComment from './AddComment';
 
-const ReviewList = ({ plantId, plantName }) => {
+const ReviewList = ({ plantId }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { auth } = useAuth();
+  const [showInput, setShowInput] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const { auth } = useAuth(); // Get auth from context
+  const [users, setUsers] = useState({}); // Store user details by userId
 
+  // Function to fetch user details by userId
+  const fetchUserById = async (userId) => {
+    try {
+      const response = await api.get(`/users/${userId}`); // Assuming this is the endpoint for fetching users
+      if (response.status === 200) {
+        setUsers((prevUsers) => ({
+          ...prevUsers,
+          [userId]: {
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+          },
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+    }
+  };
+
+  // Fetch reviews when component mounts
   useEffect(() => {
-    const fetchReviewsWithUserDetails = async () => {
+    const fetchReviews = async () => {
       try {
         const reviewResponse = await api.get(`/reviews?plantId=${plantId}`);
         if (reviewResponse.status !== 200) {
           throw new Error('Failed to fetch reviews');
         }
 
-        const reviewsData = reviewResponse.data.filter((review) => review.plantId === plantId);
-        const uniqueUserIds = [...new Set(reviewsData.map((review) => review.userId))];
-        const usersResponse = await api.get(`/users?ids=${uniqueUserIds.join(',')}`);
+        setReviews(reviewResponse.data);
 
-        if (usersResponse.status !== 200) {
-          throw new Error('Failed to fetch user details');
-        }
-
-        const users = usersResponse.data.reduce((acc, user) => {
-          acc[user.id] = `${user.firstName} ${user.lastName}`;
-          return acc;
-        }, {});
-
-        const reviewsWithUsers = reviewsData.map((review) => ({
-          ...review,
-          userFullName: users[review.userId],
-        }));
-
-        setReviews(reviewsWithUsers);
+        // Fetch user data for each review
+        reviewResponse.data.forEach((review) => {
+          if (!users[review.userId]) {
+            fetchUserById(review.userId); // Only fetch if not already in state
+          }
+        });
       } catch (err) {
         console.error('Error fetching reviews:', err);
         setError('Failed to load reviews. Please try again later.');
@@ -46,38 +56,51 @@ const ReviewList = ({ plantId, plantName }) => {
       }
     };
 
-    fetchReviewsWithUserDetails();
-  }, [plantId]);
+    fetchReviews();
+  }, [plantId, users]);
 
-  const handleDelete = async (reviewId, userId, plantId) => {
-    try {
-      // Deleting comments associated with the review first
-      const deleteCommentsResponse = await api.delete('/comments', {
-        data: { reviewId },
-      });
+  const handleAddReview = async () => {
+    const token = auth?.token || localStorage.getItem('token');
+    
+    if (!token || !auth?.userId) {
+      setError('Please log in to add a review.');
+      return;
+    }
 
-      if (deleteCommentsResponse.status !== 200) {
-        throw new Error('Failed to delete associated comments');
+    if (reviewText.trim()) {
+      try {
+        const response = await api.post(
+          '/reviews',
+          { plantId, content: reviewText, userId: auth.userId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (response.status === 201) {
+          setReviews((prev) => [
+            ...prev,
+            {
+              ...response.data.review,
+              userFullName: auth ? `${auth.firstName} ${auth.lastName}` : '',
+            },
+          ]);
+          setReviewText('');
+          setShowInput(false);
+          setError(null);
+        } else {
+          throw new Error('Failed to add review');
+        }
+      } catch (err) {
+        console.error('Error adding review:', err);
+        setError('Failed to add review. Please try again later.');
       }
+    } else {
+      setError('Review cannot be empty.');
+    }
+  };
 
-      console.log('Deleted comments associated with review: ', { reviewId });
-
-      // Now deleting the review
-      const response = await api.delete(`/reviews/${reviewId}`, {
-        data: { reviewId, userId, plantId }, // Ensure this is expected in your backend
-      });
-
-      if (response.status === 200) {
-        setReviews((prevReviews) => prevReviews.filter((review) => review.id !== reviewId));
-      } else {
-        throw new Error('Failed to delete review');
-      }
-    } catch (err) {
-      console.error('Error deleting review:', err);
-      setError('Failed to delete review. Please try again later.');
-
-      // Clear the error message after 3 seconds
-      setTimeout(() => setError(null), 3000);
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleAddReview();
     }
   };
 
@@ -85,50 +108,61 @@ const ReviewList = ({ plantId, plantName }) => {
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div>
-      <h2>Reviews for {plantName}</h2>
+    <div className="review-list">
+      <h3 className="ui dividing review header">Reviews</h3>
+
       {reviews.length > 0 ? (
-        <div className="ui comments">
-          {reviews.map((review) => (
-            <div key={review.id} className="comment">
-              <h3 className="ui dividing header">Reviews</h3>
-              <div className="content">
-                <span className="author">{review.userFullName}</span>
+        reviews.map((review) => {
+          const user = users[review.userId];
+          const userFullName = user ? `${user.firstName} ${user.lastName}` : 'Unknown User';
+          return (
+            <div key={review.id} className="review-item">
+              <h5 className="review">{userFullName}</h5>
+              <div className="review-text">
                 <p>{review.content}</p>
-                <div className="star-rating">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className={`star ${star <= review.rating ? 'filled' : ''}`}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                {auth && auth.userId === review.userId && (
-                  <button
-                    className="delete-button"
-                    onClick={() => handleDelete(review.id, auth.userId, plantId)}
-                  >
-                    Delete Review
-                  </button>
-                )}
-                <CommentList reviewId={review.id} />
-                <AddComment reviewId={review.id} userId={auth?.userId} />
               </div>
+
+              {/* Show comments related to this review */}
+              <CommentList plantId={plantId} reviewId={review.id} />
             </div>
-          ))}
-        </div>
+          );
+        })
       ) : (
-        <p>No reviews available for this plant. Be the first to leave a review!</p>
+        <p>No reviews yet. Be the first to add one!</p>
       )}
+
+      {/* Add review form */}
+      <div className="add-review">
+        {auth && auth.userId ? (
+          showInput ? (
+            <>
+              <textarea
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                placeholder="Write your review..."
+                rows="3"
+                onKeyPress={handleKeyPress} // Handle Enter press
+              />
+              <div>
+                <button onClick={() => { setShowInput(false); setReviewText(''); }}>Cancel</button>
+                <button onClick={handleAddReview}>Submit</button>
+              </div>
+            </>
+          ) : (
+            <button onClick={() => setShowInput(true)}>Add Review</button>
+          )
+        ) : (
+          <button onClick={() => console.log('Redirect to login')}>
+            Log in to review
+          </button>
+        )}
+      </div>
     </div>
   );
 };
 
 ReviewList.propTypes = {
   plantId: PropTypes.number.isRequired,
-  plantName: PropTypes.string.isRequired,
 };
 
 export default ReviewList;

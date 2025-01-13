@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
-import PropTypes from 'prop-types';
 
 const CommentList = ({ plantId, reviewId }) => {
   const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showInput, setShowInput] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
   const { auth } = useAuth();
 
   useEffect(() => {
-    const fetchCommentsWithUserDetails = async () => {
+    const fetchComments = async () => {
       try {
-        // Fetch comments for the given plantId
         const commentResponse = await api.get(`/comments?plantId=${plantId}`);
         if (commentResponse.status !== 200) {
           throw new Error('Failed to fetch comments');
@@ -22,34 +24,60 @@ const CommentList = ({ plantId, reviewId }) => {
           (comment) => comment.reviewId === reviewId
         );
 
-        // Fetch user details for each comment
-        const commentsWithUsers = await Promise.all(
-          commentsData.map(async (comment) => {
-            const userResponse = await api.get(`/users/${comment.userId}`);
-            if (userResponse.status !== 200) {
-              throw new Error(`Failed to fetch user for userId: ${comment.userId}`);
-            }
-
-            const user = userResponse.data;
-
-            return {
-              ...comment,
-              userFullName: `${user.firstName} ${user.lastName}`, // Combine first and last name
-            };
-          })
-        );
-
-        setComments(commentsWithUsers);
+        setComments(commentsData);
       } catch (err) {
-        console.error('Error fetching comments with user details:', err);
+        console.error('Error fetching comments:', err);
         setError('Failed to load comments. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCommentsWithUserDetails();
+    fetchComments();
   }, [plantId, reviewId]);
+
+  const handleAddComment = async () => {
+    const token = auth?.token || localStorage.getItem('token');
+
+    if (!token || !auth?.userId) {
+      setError('Please log in to comment.');
+      return;
+    }
+
+    if (commentText.trim()) {
+      setIsSubmitting(true); // Set submitting state to true
+
+      try {
+        const response = await api.post(
+          '/comments',
+          { reviewId, content: commentText, userId: auth.userId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (response.status === 201) {
+          setComments((prev) => [
+            ...prev,
+            {
+              ...response.data.comment,
+              userFullName: `${auth.firstName} ${auth.lastName}`,
+            },
+          ]);
+          setCommentText('');
+          setShowInput(false);
+          setError(null);
+        } else {
+          throw new Error('Failed to add comment');
+        }
+      } catch (err) {
+        console.error('Error adding comment:', err);
+        setError('Failed to add comment. Please try agaiin later.');
+      } finally {
+        setIsSubmitting(false); // Reset submitting state
+      }
+    } else {
+      setError('Comment cannot be empty.');
+    }
+  };
 
   const handleDelete = async (commentId) => {
     try {
@@ -64,11 +92,12 @@ const CommentList = ({ plantId, reviewId }) => {
     } catch (err) {
       console.error('Error deleting comment:', err);
       setError('Failed to delete comment. Please try again later.');
+    }
+  };
 
-      // Clear the error after 3 seconds
-      setTimeout(() => {
-        setError(null);
-      }, 3000);
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleAddComment();
     }
   };
 
@@ -76,41 +105,77 @@ const CommentList = ({ plantId, reviewId }) => {
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="ui comments">
-      <h3 className="ui dividing header">Comments</h3>
-      {comments.length > 0 ? (
+    <div className="comment-list">
+      <h4 className="ui dividing comment header">Comments</h4>
+
+      {comments.length > 0 && (
         comments.map((comment) => (
           <div key={comment.id} className="comment">
-            <div className="content">
-              <span
-                className="author"
-                aria-label={`Comment by ${comment.userFullName}`}
-              >
-                {comment.userFullName}
-              </span>
-              <div className="text">{comment.content}</div>
-              {auth && auth.userId === comment.userId && (
-                <button
-                  className="ui red button delete-button"
-                  onClick={() => handleDelete(comment.id)}
-                  aria-label="Delete comment"
-                >
-                  Delete Comment
-                </button>
-              )}
+            <div className="comment-header">
+              <div className="comment-info">
+                <span className="author">{comment.userFullName}</span>
+                <div className="metadata">
+                  <span className="date">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
+            <div className="comment-text">
+              <p>{comment.content}</p>
+            </div>
+            {auth && auth.userId === comment.userId && (
+              <button
+                className="ui red button delete-button"
+                onClick={() => handleDelete(comment.id)}
+              >
+                Delete Comment
+              </button>
+            )}
           </div>
         ))
-      ) : (
-        <p>No comments yet. Be the first to add one!</p>
       )}
+
+      <div className="add-comment">
+        {auth && auth.userId ? (
+          showInput ? (
+            <>
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Write your comment..."
+                rows="3"
+                onKeyPress={handleKeyPress} // Handle Enter press
+                aria-label="Comment input field"
+              />
+              <div>
+                <button onClick={handleAddComment} disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </button>
+                <button onClick={() => setShowInput(false)}>Cancel</button>
+              </div>
+            </>
+          ) : (
+            <textarea
+              placeholder="Write your comment..."
+              onClick={() => setShowInput(true)}
+              onKeyPress={handleKeyPress} // Handle Enter press
+              aria-label="Click to add comment"
+            />
+          )
+        ) : (
+          <button onClick={() => console.log('Redirect to login')}>
+            Log in to comment
+          </button>
+        )}
+      </div>
     </div>
   );
 };
 
 CommentList.propTypes = {
-  plantId: PropTypes.number.isRequired, // plantId must be a number and required
-  reviewId: PropTypes.number.isRequired, // reviewId must be a number and required
+  plantId: PropTypes.number.isRequired,
+  reviewId: PropTypes.number.isRequired,
 };
 
 export default CommentList;

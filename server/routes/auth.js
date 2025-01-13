@@ -11,7 +11,9 @@ const generateToken = (user) => {
     id: user.id,
     email: user.email,
     isAdmin: user.role, 
+    firstName: user.firstName,
   };
+  console.log("payload", payload)
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 

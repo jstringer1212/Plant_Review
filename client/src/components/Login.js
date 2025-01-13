@@ -18,7 +18,7 @@ const Login = ({ onClose }) => {
 
     try {
       const response = await api.post('/login', loginData);
-      console.log("response: ", response);
+      console.log("response: ", response.data);
       if (response.status === 200) {
         const { token, userId, role } = response.data;
         console.log("user: ", userId, "admin?: ", role); //this returns the userId

@@ -36,23 +36,36 @@ const PlantDetail = () => {
   }, [id]);
 
   const toggleFavorite = async (plantId) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(plantId)
-        ? prevFavorites.filter((id) => id !== plantId)
-        : [...prevFavorites, plantId]
-    );
+    const updatedFavorites = favorites.includes(plantId)
+      ? favorites.filter((id) => id !== plantId)
+      : [...favorites, plantId];
+  
+    try {
+      await fetch(`/api/users/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ favorites: updatedFavorites }),
+      });
+      setFavorites(updatedFavorites); // Update local state only after success
+    } catch (error) {
+      console.error('Error updating favorites:', error);
+    }
   };
 
   if (loading) return <p>Loading plant details...</p>;
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="ui centered grid">
-      <div className="ui centered card">
+    <div className="ui centered grid" style={{ display: 'flex', flexDirection: 'row' }}>
+      {/* Plant Details Section (25% width) */}
+      <div style={{ flex: '0 0 25%', padding: '20px' }} className="ui centered card">
         {plant ? (
           <>
-            <img src={plant.imageUrl} alt={plant.cName} className="ui small centered bordered image" />
-
+            <img
+              src={plant.imageUrl}
+              alt={plant.cName}
+              className="ui small centered bordered image"
+            />
             <h1 className="ui centered header">{plant.cName}</h1>
 
             <div role="list" className="ui list">
@@ -105,16 +118,21 @@ const PlantDetail = () => {
                 {favorites.includes(plant.id) ? 'Remove from Favorites' : 'Add to Favorites'}
               </button>
             </div>
-
-            <div className="ui comments">
-              <ReviewList plantId={plant.id} plantName={plant.cName} />
-              <AddReview plantId={plant.id} />
-              <CommentList plantId={plant.id} plantName={plant.cName} />
-            </div>
           </>
         ) : (
           <p>Plant not found</p>
         )}
+      </div>
+
+      {/* Reviews and Comments Section (75% width) */}
+      <div style={{ flex: '0 0 75%', padding: '20px' }}>
+        <div className="ui comments">
+          <ReviewList plantId={plant.id} plantName={plant.cName} />
+          <AddReview plantId={plant.id} />
+          {plant.comments && plant.comments > 0 && (
+            <CommentList plantId={plant.id} plantName={plant.cName} />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -130,6 +148,8 @@ PlantDetail.propTypes = {
     pColor: PropTypes.string,
     sColor: PropTypes.string,
     imageUrl: PropTypes.string.isRequired,
+    favorites: PropTypes.arrayOf(PropTypes.string),
+    setFavorites: PropTypes.func,
   }),
   favorites: PropTypes.arrayOf(PropTypes.string),
   setFavorites: PropTypes.func,

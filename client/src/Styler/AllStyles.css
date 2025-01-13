@@ -175,5 +175,90 @@ img {
     background-color: aqua;
   }
 
+  /* Review List Section */
+.review-list {
+    padding: 20px;
+    border: 2px solid rgb(50, 209, 50);
+  }
+  
+  .review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .review-info .author {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .review-info .metadata .date {
+    color: #888;
+    font-size: 12px;
+  }
   
   
+  
+  .add-review textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .add-review button {
+    margin: 5px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .add-review button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Error Styling */
+  .error {
+    color: rgb(255, 0, 0);
+    font-weight: bold;
+  }
+  
+  .ui.dividing.review.header {
+    display: flex; /* Ensures that justify-content and align-items work */
+    justify-content: flex-start; /* Aligns the content to the left */
+    align-items: flex-start; /* Ensures the content is aligned to the top (if needed) */
+    text-align: center; /* Ensure text is aligned to the left */
+  }
+  
+  .ui.dividing.comment.header {
+    margin-left: 15px;
+    display: flex; /* Ensures that justify-content and align-items work */
+    justify-content: flex-start; /* Aligns the content to the left */
+    align-items: flex-start; /* Ensures the content is aligned to the top (if needed) */
+    text-align: left; /* Ensure text is aligned to the left */
+  }
+
+  .review-item {
+    margin-top: 8px;
+    margin-bottom: 3px;
+    border: 2px solid rgb(141, 99, 141);
+  }
+
+  h5 {
+    padding: 5px;
+    display: flex;
+    text-align: left;
+    justify-content: left;
+    align-items: flex-start;
+  }
+
+  .review-text {
+    margin: 2px;
+    padding: 10px 0;
+    font-size: 14px;
+    border: 2px solid rgb(245, 41, 245);
+  }
