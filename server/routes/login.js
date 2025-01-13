@@ -26,14 +26,13 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Include the 'role' field in the JWT payload
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role }, // Changed isAdmin to role
+      { id: user.id, email: user.email, role: user.role }, 
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-
-    res.status(200).json({ message: 'Login successful', token, userId: user.id });
+    console.log("token: ", token)
+    res.status(200).json({ message: 'Login successful', token, userId: user.id, role: user.role });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }

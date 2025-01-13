@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
-import { useAuth } from './Login';
+import { useAuth } from '../contexts/AuthContext';
 import PropTypes from 'prop-types';
 
 const CommentList = ({ plantId, reviewId }) => {

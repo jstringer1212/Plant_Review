@@ -30,7 +30,7 @@ app.use('/api/plants', plantsRoutes);
 app.use('/api/register', registerRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/users', usersRoutes); // Keep this for general user routes
-app.use('/api/admin', adminRoutes); // Admin routes
+app.use('/api', adminRoutes); // Admin routes
 
 // Start the server
 const PORT = process.env.PORT || 3000;

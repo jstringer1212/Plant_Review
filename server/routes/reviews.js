@@ -47,10 +47,11 @@ router.post('/', async (req, res) => {
 // Delete a review by reviewId and plantId
 router.delete('/:reviewId', async (req, res) => {
   const { reviewId } = req.params;
-  const { plantId } = req.body; // Or you could use query params: req.query.plantId
-  
+  const { plantId, userId, role } = req.body; // Accept role directly
+  console.log('review id: ', reviewId);
+
   try {
-    // Find the review to ensure it belongs to the correct plantId
+    // Find the review
     const review = await prisma.review.findUnique({
       where: { id: parseInt(reviewId, 10) },
     });
@@ -59,20 +60,28 @@ router.delete('/:reviewId', async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
+    // Check if the review belongs to the correct plant
     if (review.plantId !== parseInt(plantId, 10)) {
       return res.status(400).json({ error: 'Review does not belong to the specified plant' });
     }
 
-    // Proceed to delete the review if it belongs to the correct plantId
+    // Check if the user is authorized to delete (owner or admin)
+    if (review.userId !== userId && role !== 'admin') {
+      return res.status(403).json({ error: 'You are not authorized to delete this review' });
+    }
+
+    // Proceed to delete the review
     await prisma.review.delete({
       where: { id: parseInt(reviewId, 10) },
     });
 
     res.status(200).json({ message: 'Review deleted successfully' });
   } catch (err) {
+    console.error('Error deleting review:', err);
     res.status(500).json({ error: 'Failed to delete review' });
   }
 });
+
 
 
 module.exports = router;

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
-import { useAuth } from './Login';
+import { useAuth } from '../contexts/AuthContext';
 
 const AddReview = ({ plantId, onAddReview }) => {
   const [content, setContent] = useState('');
   const [rating, setRating] = useState(1); // Default rating is 1
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  const { auth } = useAuth();
+  const { auth } = useAuth(); // Get the auth context
 
   const getToken = () => {
     // Fallback to localStorage if auth context is missing
@@ -19,11 +19,16 @@ const AddReview = ({ plantId, onAddReview }) => {
     return auth?.userId || localStorage.getItem('userId');
   };
 
+  // Check if user is logged in
+  const isLoggedIn = getToken() && getUserId();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const token = getToken();
     const userId = getUserId();
+
+    console.log(token, userId, "token and userID")
 
     if (!token || !userId) {
       setError('You must be logged in to submit a review.');
@@ -69,39 +74,45 @@ const AddReview = ({ plantId, onAddReview }) => {
 
   return (
     <div className="add-review">
-      <h3>Add a Review</h3>
-      {error && <p className="error">{error}</p>}
-      {successMessage && <p className="success">{successMessage}</p>}
-      <form onSubmit={handleSubmit}>
-        <textarea
-          value={content}
-          onChange={(e) => {
-            setContent(e.target.value);
-            handleInputChange();
-          }}
-          placeholder="Write your review here"
-          required
-        />
-        <br />
-        <label>
-          Rating:
-          <div className="star-rating">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className={`star ${star <= rating ? 'filled' : ''}`}
-                onClick={() => handleStarClick(star)}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-        </label>
-        <br />
-        <button className="button" type="submit">
-          Submit Review
-        </button>
-      </form>
+      {isLoggedIn ? (
+        <>
+          <h3>Add a Review</h3>
+          {error && <p className="error">{error}</p>}
+          {successMessage && <p className="success">{successMessage}</p>}
+          <form onSubmit={handleSubmit}>
+            <textarea
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+                handleInputChange();
+              }}
+              placeholder="Write your review here"
+              required
+            />
+            <br />
+            <label>
+              Rating:
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={`star ${star <= rating ? 'filled' : ''}`}
+                    onClick={() => handleStarClick(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+            </label>
+            <br />
+            <button className="button" type="submit">
+              Submit Review
+            </button>
+          </form>
+        </>
+      ) : (
+        <p>You must be logged in to add a review. Please log in to continue.</p>
+      )}
     </div>
   );
 };

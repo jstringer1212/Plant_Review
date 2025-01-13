@@ -1,79 +1,81 @@
-import React, { useState, useContext } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'; // Access AuthContext
+import { api } from '../api'; // Utility for API requests
+import '../Styler/Login.css'; // Optional: Add custom styles
 
-// Create a Context for Auth
-const AuthContext = React.createContext();
-
-// Auth Provider Component
-export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    token: null,
-    userId: null,
-  });
-
-  return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-// Custom Hook to Access Auth Context
-export const useAuth = () => useContext(AuthContext);
-
-// Login Component
-const Login = () => {
+const Login = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setAuth } = useAuth();
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use AuthContext to manage auth state
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    const loginData = { email, password };
+
     try {
-      const response = await axios.post('/api/login', { email, password });
-
-      // Extract token and userId from the response
-      const { token, userId } = response.data;
-
-      if (token && userId) {
-        // Save to context and localStorage
-        setAuth({ token, userId });
+      const response = await api.post('/login', loginData);
+      console.log("response: ", response);
+      if (response.status === 200) {
+        const { token, userId, role } = response.data;
+        console.log("user: ", userId, "admin?: ", role); //this returns the userId
+        // Store token and set auth state
         localStorage.setItem('token', token);
-        localStorage.setItem('userId', userId);
+        login({ userId, role, token });
 
-        // Redirect to home page
-        navigate('/');
+        if (onClose) {
+          onClose(); // Close modal if triggered from modal
+        } else {
+          navigate('/'); // Redirect to home page if standalone
+        }
       } else {
-        console.error('Invalid response format:', response.data);
+        setError('Invalid email or password. Please try again.');
       }
-    } catch (error) {
-      console.error('Error logging in:', error.response?.data || error.message);
+    } catch (err) {
+      setError('An error occurred while logging in.');
+      console.error('Login error:', err);
     }
   };
 
   return (
-    <div className='ui centered grid'>
-    <form className='ui form' onSubmit={handleLogin}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button className='ui button' type="submit">Login</button>
-    </form>
+    <div className="login-container">
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+
+      {error && <p className="error-message">{error}</p>}
+
+      {/* Optional close button for modal */}
+      {onClose && (
+        <button className="modal-close-button" onClick={onClose}>
+          Close
+        </button>
+      )}
     </div>
-
-
-);
+  );
 };
 
 export default Login;

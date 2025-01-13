@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom'; // No need for BrowserRouter here
 import './App.css';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
@@ -11,14 +11,16 @@ import ReviewDetail from './components/ReviewDetail';
 import Account from './components/Account';
 import Home from './components/Home';
 import Admin from './components/Admin';
+import { AuthProvider } from './contexts/AuthContext';  // Import AuthContext
+import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
 import './Styler/AllStyles.css';
 
 function App() {
   return (
-    <Router>
+    <AuthProvider>  {/* Wrap your app with AuthProvider */}
       <div className="app-container">
         <header className="App-header">
-          <Navbar /> 
+          <Navbar />
         </header>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -28,12 +30,11 @@ function App() {
           <Route path="/reviews/:id" element={<ReviewDetail />} />
           <Route path="/reviews" element={<ReviewList />} />
           <Route path="/" element={<Home />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/admin" element={<Admin />} />
-
+          <Route path="/account" element={<ProtectedRoute element={<Account />} />} />
+          <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
         </Routes>
       </div>
-    </Router>
+    </AuthProvider>
   );
 }
 

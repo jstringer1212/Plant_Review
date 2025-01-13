@@ -15,17 +15,26 @@ router.get('/', async (req, res) => {
 
 // Create a comment
 router.post('/', async (req, res) => {
-  const { content, userId, plantId } = req.body;
+  const { content, userId, reviewId } = req.body;
+  console.log(req.body);
+  // Validate required fields
+  if (!content || !userId || !reviewId) {
+    return res.status(400).json({ error: 'Content, userId, and reviewId are required' });
+  }
+
   try {
+    // Create a new comment
     const newComment = await prisma.comment.create({
       data: {
         content,
         userId,
-        plantId,
+        reviewId,
       },
     });
+
     res.status(201).json(newComment);
   } catch (err) {
+    console.error("Error creating comment:", err);
     res.status(500).json({ error: 'Failed to create comment' });
   }
 });
@@ -57,6 +66,7 @@ router.delete('/:commentId', async (req, res) => {
 
     res.status(200).json({ message: 'Comment deleted successfully' });
   } catch (err) {
+    console.error("Error deleting comment:", err);
     res.status(500).json({ error: 'Failed to delete comment' });
   }
 });

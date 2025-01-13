@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { api } from '../api';
-import { useAuth } from './Login';
+import { useAuth } from '../contexts/AuthContext';
 import CommentList from './CommentList';
 import AddComment from './AddComment';
 
@@ -49,9 +49,24 @@ const ReviewList = ({ plantId, plantName }) => {
     fetchReviewsWithUserDetails();
   }, [plantId]);
 
-  const handleDelete = async (reviewId) => {
+  const handleDelete = async (reviewId, userId, plantId) => {
     try {
-      const response = await api.delete(`/reviews/${reviewId}`);
+      // Deleting comments associated with the review first
+      const deleteCommentsResponse = await api.delete('/comments', {
+        data: { reviewId },
+      });
+
+      if (deleteCommentsResponse.status !== 200) {
+        throw new Error('Failed to delete associated comments');
+      }
+
+      console.log('Deleted comments associated with review: ', { reviewId });
+
+      // Now deleting the review
+      const response = await api.delete(`/reviews/${reviewId}`, {
+        data: { reviewId, userId, plantId }, // Ensure this is expected in your backend
+      });
+
       if (response.status === 200) {
         setReviews((prevReviews) => prevReviews.filter((review) => review.id !== reviewId));
       } else {
@@ -93,13 +108,13 @@ const ReviewList = ({ plantId, plantName }) => {
                 {auth && auth.userId === review.userId && (
                   <button
                     className="delete-button"
-                    onClick={() => handleDelete(review.id)}
+                    onClick={() => handleDelete(review.id, auth.userId, plantId)}
                   >
                     Delete Review
                   </button>
                 )}
                 <CommentList reviewId={review.id} />
-                <AddComment reviewId={review.id} />
+                <AddComment reviewId={review.id} userId={auth?.userId} />
               </div>
             </div>
           ))}
