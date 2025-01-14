@@ -82,11 +82,20 @@ const CommentList = ({ plantId, reviewId }) => {
   };
 
   const handleDelete = async (commentId) => {
+    console.log("Attempting to delete comment ID:", commentId);
+    console.log("Token:", token);
+    console.log("User ID:", userId);
+  
     try {
+      // Sending only Authorization header with token
       const response = await api.delete(`/comments/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+  
       if (response.status === 200) {
+        // Successfully deleted the comment, so remove it from the state
         setComments((prevComments) =>
           prevComments.filter((comment) => comment.id !== commentId)
         );
@@ -98,6 +107,8 @@ const CommentList = ({ plantId, reviewId }) => {
       setError('Failed to delete comment. Please try again later.');
     }
   };
+  
+  
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
@@ -117,25 +128,20 @@ const CommentList = ({ plantId, reviewId }) => {
           <div key={comment.id} className="comment">
             <div className="comment-header">
               <div className="comment-info">
-                <span className="author">{userFullName}</span>
-                <div className="metadata">
-                  <span className="date">
-                    {new Date(comment.createdAt).toLocaleString()}
-                  </span>
-                </div>
+                <span className="author">{userFullName}: </span>
+                
               </div>
             </div>
             <div className="comment-text">
               <p>{comment.content}</p>
             </div>
-            {userId && userId === comment.userId && (
+            
               <button
-                className="ui red button delete-button"
+                className="ui icon trash button"
                 onClick={() => handleDelete(comment.id)}
-              >
-                Delete Comment
-              </button>
-            )}
+              ><i aria-hidden="true" className="trash icon">
+                </i></button>
+            
           </div>
         ))
       )}

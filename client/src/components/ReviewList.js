@@ -161,7 +161,7 @@ const ReviewList = ({ plantId }) => {
               </div>
             </>
           ) : (
-            <button onClick={() => setShowInput(true)}>Add Review</button>
+            <></>
           )
         ) : (
           <button onClick={() => alert('Redirecting to login page...')}>

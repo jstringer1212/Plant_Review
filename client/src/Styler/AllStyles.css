@@ -236,20 +236,20 @@ img {
   
   .ui.dividing.comment.header {
     margin-left: 15px;
-    display: flex; /* Ensures that justify-content and align-items work */
-    justify-content: flex-start; /* Aligns the content to the left */
-    align-items: flex-start; /* Ensures the content is aligned to the top (if needed) */
-    text-align: left; /* Ensure text is aligned to the left */
+    display: flex; 
+    justify-content: flex-start; 
+    align-items: flex-start; 
+    text-align: left; 
   }
 
   .review-item {
-    margin-top: 8px;
+    margin-top: 18px;
     margin-bottom: 3px;
     border: 2px solid rgb(141, 99, 141);
   }
 
   h5 {
-    padding: 5px;
+    
     display: flex;
     text-align: left;
     justify-content: left;
@@ -257,8 +257,28 @@ img {
   }
 
   .review-text {
-    margin: 2px;
-    padding: 10px 0;
+    margin-bottom: 15px;
     font-size: 14px;
-    border: 2px solid rgb(245, 41, 245);
+    /* border: 2px solid rgb(245, 41, 245); */
+    margin-left: 15px;
+    display: flex; 
+    justify-content: flex-start; 
+    align-items: flex-start; 
+    text-align: left; 
+  }
+
+  .comment {
+    margin-left: 10%;
+    display: flex; 
+    justify-content: flex-start; 
+    align-items: flex-start; 
+    text-align: right; 
+  }
+  
+  .comment-info {
+    margin-left: 25%;
+  }
+
+  .ui.icon.trash.button {
+    background-color: #ccccff;
   }
