@@ -4,6 +4,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import ReviewList from './ReviewList';
 import CommentList from './CommentList';
 import AddReview from './AddReview';
+import FavoriteButton from './favButton';
 
 const PlantDetail = () => {
   const { id } = useParams(); // Retrieve plant ID from the URL
@@ -11,7 +12,8 @@ const PlantDetail = () => {
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [favorites, setFavorites] = useState([]);
+  const userId = localStorage.getItem('userId'); // Retrieve user ID from localStorage
+  const [isFavorite, setIsFavorite] = useState(false); // Track favorite status for this plant
 
   const from = location.state?.from || 'list'; // Determine navigation origin
 
@@ -24,6 +26,12 @@ const PlantDetail = () => {
         }
         const data = await response.json();
         setPlant(data);
+
+        // Check if this plant is already a favorite
+        const favoriteResponse = await fetch(`/api/favorites?userId=${userId}`);
+        const favoriteData = await favoriteResponse.json();
+        const isFavorited = favoriteData.some((fav) => fav.plantId === parseInt(id, 10));
+        setIsFavorite(isFavorited);
       } catch (error) {
         console.error('Error fetching plant details:', error);
         setError('Failed to load plant details. Please try again later.');
@@ -33,24 +41,7 @@ const PlantDetail = () => {
     };
 
     fetchPlantDetails();
-  }, [id]);
-
-  const toggleFavorite = async (plantId) => {
-    const updatedFavorites = favorites.includes(plantId)
-      ? favorites.filter((id) => id !== plantId)
-      : [...favorites, plantId];
-  
-    try {
-      await fetch(`/api/users/favorites`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ favorites: updatedFavorites }),
-      });
-      setFavorites(updatedFavorites); // Update local state only after success
-    } catch (error) {
-      console.error('Error updating favorites:', error);
-    }
-  };
+  }, [id, userId]);
 
   if (loading) return <p>Loading plant details...</p>;
   if (error) return <p className="error">{error}</p>;
@@ -111,12 +102,11 @@ const PlantDetail = () => {
                   Back to {from === 'favorites' ? 'Favorites' : 'Plant List'}
                 </button>
               </Link>
-              <button
-                className={`ui button ${favorites.includes(plant.id) ? 'red' : ''}`}
-                onClick={() => toggleFavorite(plant.id)}
-              >
-                {favorites.includes(plant.id) ? 'Remove from Favorites' : 'Add to Favorites'}
-              </button>
+              <FavoriteButton
+                userId={parseInt(userId, 10)}
+                plantId={plant.id}
+                initialFavorite={isFavorite} // Pass the favorite status dynamically
+              />
             </div>
           </>
         ) : (
@@ -148,11 +138,8 @@ PlantDetail.propTypes = {
     pColor: PropTypes.string,
     sColor: PropTypes.string,
     imageUrl: PropTypes.string.isRequired,
-    favorites: PropTypes.arrayOf(PropTypes.string),
-    setFavorites: PropTypes.func,
+    comments: PropTypes.number,
   }),
-  favorites: PropTypes.arrayOf(PropTypes.string),
-  setFavorites: PropTypes.func,
 };
 
 export default PlantDetail;

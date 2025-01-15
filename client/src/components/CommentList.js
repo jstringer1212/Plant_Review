@@ -9,23 +9,39 @@ const CommentList = ({ plantId, reviewId }) => {
   const [error, setError] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
+  const [userNames, setUserNames] = useState({}); // Store user names by userId
 
   const token = localStorage.getItem('token');
-  const userId = localStorage.getItem('userId');
-  const userFullName = `${localStorage.getItem('firstName')} ${localStorage.getItem('lastName')}`;
+  const userId = parseInt(localStorage.getItem('userId'), 10);
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         const commentResponse = await api.get(`/comments?plantId=${plantId}`);
+        // console.log('commentResponse', commentResponse); // Log the full response
+
         if (commentResponse.status !== 200) {
           throw new Error('Failed to fetch comments');
         }
 
-        const commentsData = commentResponse.data.filter(
-          (comment) => comment.reviewId === reviewId
-        );
+        // Filter comments based on reviewId
+        const commentsData = commentResponse.data.filter((comment) => comment.reviewId === reviewId);
 
+        // Fetch user data for each comment's userId concurrently
+      const userNamesData = {};
+      const userRequests = commentsData.map(async (comment) => {
+        if (!userNamesData[comment.userId]) {
+          const userResponse = await api.get(`/users/${comment.userId}`);
+          if (userResponse.status === 200) {
+            const { firstName, lastName } = userResponse.data;
+            userNamesData[comment.userId] = `${firstName} ${lastName}`;
+          }
+        }
+      });
+
+      await Promise.all(userRequests); // Wait for all user requests to finish
+
+        setUserNames(userNamesData);
         setComments(commentsData);
       } catch (err) {
         console.error('Error fetching comments:', err);
@@ -39,8 +55,6 @@ const CommentList = ({ plantId, reviewId }) => {
   }, [plantId, reviewId]);
 
   const handleAddComment = async () => {
-    console.log("userID: ", userId);
-    console.log("token: ", token)
     if (!token || !userId) {
       setError('Please log in to comment.');
       return;
@@ -61,14 +75,14 @@ const CommentList = ({ plantId, reviewId }) => {
             ...prev,
             {
               ...response.data.comment,
-              userFullName,
+              userFullName: `${localStorage.getItem('firstName')} ${localStorage.getItem('lastName')}`,
             },
           ]);
           setCommentText('');
           setShowInput(false);
           setError(null);
         } else {
-          throw new Error('Failed to add comment 1');
+          throw new Error('Failed to add comment');
         }
       } catch (err) {
         console.error('Error adding comment:', err);
@@ -82,23 +96,15 @@ const CommentList = ({ plantId, reviewId }) => {
   };
 
   const handleDelete = async (commentId) => {
-    console.log("Attempting to delete comment ID:", commentId);
-    console.log("Token:", token);
-    console.log("User ID:", userId);
-  
     try {
-      // Sending only Authorization header with token
       const response = await api.delete(`/comments/${commentId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.status === 200) {
-        // Successfully deleted the comment, so remove it from the state
-        setComments((prevComments) =>
-          prevComments.filter((comment) => comment.id !== commentId)
-        );
+        setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
       } else {
         throw new Error('Failed to delete comment');
       }
@@ -107,8 +113,6 @@ const CommentList = ({ plantId, reviewId }) => {
       setError('Failed to delete comment. Please try again later.');
     }
   };
-  
-  
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
@@ -123,28 +127,27 @@ const CommentList = ({ plantId, reviewId }) => {
     <div className="comment-list">
       <h4 className="ui dividing comment header">Comments</h4>
 
-      {comments.length > 0 && (
+      {comments.length > 0 &&
         comments.map((comment) => (
           <div key={comment.id} className="comment">
             <div className="comment-header">
               <div className="comment-info">
-                <span className="author">{userFullName}: </span>
-                
+                {/* Display user's full name fetched from /api/users */}
+                <span className="author">{userNames[comment.userId]}: </span>
               </div>
             </div>
             <div className="comment-text">
               <p>{comment.content}</p>
             </div>
-            
-              <button
-                className="ui icon trash button"
-                onClick={() => handleDelete(comment.id)}
-              ><i aria-hidden="true" className="trash icon">
-                </i></button>
-            
+
+            <button
+              className="ui icon trash button"
+              onClick={() => handleDelete(comment.id)}
+            >
+              <i aria-hidden="true" className="trash icon"></i>
+            </button>
           </div>
-        ))
-      )}
+        ))}
 
       <div className="add-comment">
         {token && userId ? (
@@ -153,9 +156,9 @@ const CommentList = ({ plantId, reviewId }) => {
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Write your comment..."
+                placeholder="Add your comment..."
                 rows="3"
-                onKeyPress={handleKeyPress} // Handle Enter press
+                onKeyPress={handleKeyPress}
                 aria-label="Comment input field"
               />
               <div>
@@ -167,9 +170,9 @@ const CommentList = ({ plantId, reviewId }) => {
             </>
           ) : (
             <textarea
-              placeholder="Write your comment..."
+              placeholder="Add your comment..."
               onClick={() => setShowInput(true)}
-              onKeyPress={handleKeyPress} // Handle Enter press
+              onKeyPress={handleKeyPress}
               aria-label="Click to add comment"
             />
           )

@@ -10,15 +10,18 @@ const ReviewList = ({ plantId }) => {
   const [showInput, setShowInput] = useState(false);
   const [reviewText, setReviewText] = useState('');
   const [users, setUsers] = useState({}); // Cache user details by userId
+  const [editingReviewId, setEditingReviewId] = useState(null); // For editing review
+  const [editedReviewText, setEditedReviewText] = useState(''); // Edited review content
 
   // Utility to get token and userId from localStorage
   const getUserInfo = () => {
     const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    return { token, userId };
+    const userId = parseInt(localStorage.getItem('userId'), 10);
+    const role = localStorage.getItem('role');
+    return { token, userId, role };
   };
 
-  const { token, userId } = getUserInfo();
+  const { token, userId, role } = getUserInfo();
 
   // Function to fetch user details by userId
   const fetchUserById = async (userId) => {
@@ -103,6 +106,61 @@ const ReviewList = ({ plantId }) => {
     }
   };
 
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const response = await api.delete(`/reviews/${reviewId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 200) {
+        setReviews((prev) => prev.filter((review) => review.id !== reviewId));
+      } else {
+        throw new Error('Failed to delete review');
+      }
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      setError('Failed to delete review. Please try again later.');
+    }
+  };
+
+  const handleEditReview = (reviewId, currentContent) => {
+    setEditingReviewId(reviewId);
+    setEditedReviewText(currentContent);
+  };
+
+  const handleSaveReview = async () => {
+    if (!editedReviewText.trim()) {
+      setError('Review cannot be empty.');
+      return;
+    }
+
+    try {
+      const response = await api.put(
+        `/reviews/${editingReviewId}`,
+        { content: editedReviewText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        setReviews((prev) =>
+          prev.map((review) =>
+            review.id === editingReviewId
+              ? { ...review, content: editedReviewText }
+              : review
+          )
+        );
+        setEditingReviewId(null);
+        setEditedReviewText('');
+        setError(null);
+      } else {
+        throw new Error('Failed to save review');
+      }
+    } catch (err) {
+      console.error('Error saving review:', err);
+      setError('Failed to save review. Please try again later.');
+    }
+  };
+
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       handleAddReview();
@@ -122,11 +180,46 @@ const ReviewList = ({ plantId }) => {
           const userFullName = user
             ? `${user.firstName} ${user.lastName}`
             : 'Unknown User';
+
+          const canDelete = review.userId === userId || role === 'admin';
+
           return (
             <div key={review.id} className="review-item">
               <h5 className="review">{userFullName}</h5>
               <div className="review-text">
-                <p>{review.content}</p>
+                {editingReviewId === review.id ? (
+                  <div>
+                    <textarea
+                      value={editedReviewText}
+                      onChange={(e) => setEditedReviewText(e.target.value)}
+                      placeholder="Edit your review..."
+                      rows="3"
+                    />
+                    <div>
+                      <button onClick={() => setEditingReviewId(null)}>Cancel</button>
+                      <button onClick={handleSaveReview}>Save</button>
+                    </div>
+                  </div>
+                ) : (
+                  <span>{review.content}</span>
+                )}
+
+                {canDelete && (
+                  <>
+                    <button
+                      className="ui icon edit"
+                      onClick={() => handleEditReview(review.id, review.content)}
+                    >
+                      <i aria-hidden="true" className="edit icon"></i>
+                    </button>
+                    <button
+                      className="ui icon trash button"
+                      onClick={() => handleDeleteReview(review.id)}
+                    >
+                      <i aria-hidden="true" className="trash icon"></i>
+                    </button>
+                  </>
+                )}
               </div>
               <CommentList plantId={plantId} reviewId={review.id} />
             </div>
@@ -161,7 +254,7 @@ const ReviewList = ({ plantId }) => {
               </div>
             </>
           ) : (
-            <></>
+            <button onClick={() => setShowInput(true)}>Add Review</button>
           )
         ) : (
           <button onClick={() => alert('Redirecting to login page...')}>

@@ -4,34 +4,46 @@ import FavoriteButton from './favButton';
 
 const PlantList = () => {
   const [plants, setPlants] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
-    const fetchPlants = async () => {
+    const fetchPlantsAndFavorites = async () => {
       try {
-        const response = await fetch('/api/plants');
-        if (!response.ok) throw new Error('Failed to fetch plants');
-        const data = await response.json();
-        setPlants(data);
+        const plantResponse = await fetch('/api/plants');
+        if (!plantResponse.ok) throw new Error('Failed to fetch plants');
+        const plantData = await plantResponse.json();
+        setPlants(plantData);
+
+        if (userId) {
+          const favoriteResponse = await fetch(`/api/favorites?userId=${userId}`);
+          if (!favoriteResponse.ok) throw new Error('Failed to fetch favorites');
+          const favoriteData = await favoriteResponse.json();
+          setFavorites(favoriteData);
+        }
       } catch (error) {
-        console.error('Error fetching plants:', error);
-        setError('Failed to load plants. Please try again later.');
+        console.error('Error fetching data:', error);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPlants();
-  }, []);
+    fetchPlantsAndFavorites();
+  }, [userId]);
 
   const handleSearchChange = (event) => setSearchTerm(event.target.value.toLowerCase());
 
   const filteredPlants = plants.filter((plant) =>
     plant.cName.toLowerCase().includes(searchTerm)
   );
+
+  const isPlantFavorited = (plantId) => {
+    return favorites.some((favorite) => favorite.plantId === plantId && favorite.isFavorite);
+  };
 
   if (loading) return <p>Loading plants...</p>;
   if (error) return <p className="error">{error}</p>;
@@ -92,7 +104,7 @@ const PlantList = () => {
                     <FavoriteButton
                       userId={parseInt(userId, 10)}
                       plantId={plant.id}
-                      initialFavorite={false} // Adjust based on additional logic if needed
+                      initialFavorite={isPlantFavorited(plant.id)}
                     />
                   )}
                 </div>

@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   const [plants, setPlants] = useState([]);
   const [randomPlant, setRandomPlant] = useState(null);
+  const currentUser = localStorage.getItem('firstName ');
 
+  console.log("current user: ", currentUser);
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         const response = await fetch('/api/plants');
         if (!response.ok) throw new Error('Failed to fetch plants');
         const data = await response.json();
-        console.log(data);
         setPlants(data);
         if (data.length) {
           setRandomPlant(data[Math.floor(Math.random() * data.length)]);
