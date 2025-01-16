@@ -1,13 +1,13 @@
-import React, { useContext, useState } from 'react';
-import { AuthContext } from '../contexts/AuthContext'; // Import AuthContext
+import React, {  useState } from 'react';
 import Login from './Login'; // Import your Login component
 import '../Styler/ProtectedRoute.css'; // Optional: Add styles for the modal and overlay
 
 const ProtectedRoute = ({ element }) => {
-  const { auth } = useContext(AuthContext); // Access the auth state from context
+  const userId = sessionStorage.getItem('userId');
+  const token = sessionStorage.getItem('token');
   const [showLoginModal, setShowLoginModal] = useState(false); // State to toggle modal visibility
 
-  if (!auth?.token) {
+  if (!userId || !token) {
     return (
       <div className="protected-route-container">
         <p>You must be logged in to access this page.</p>

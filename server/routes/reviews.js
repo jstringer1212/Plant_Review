@@ -3,28 +3,32 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Get all reviews, with optional filtering by plantId
+// Get all reviews, with optional filtering by plantId and userId
 router.get('/', async (req, res) => {
-  const { plantId } = req.query;
+  const { plantId, userId } = req.query;
   
   try {
     let reviews;
-    if (plantId) {
-      // Filter reviews by plantId if provided
-      reviews = await prisma.review.findMany({
-        where: {
-          plantId: parseInt(plantId, 10), // Make sure to parse it as an integer
-        },
-      });
-    } else {
-      // Return all reviews if no plantId is specified
-      reviews = await prisma.review.findMany();
+    const filters = {};
+
+    if (userId) {
+      filters.userId = parseInt(userId, 10); // Filter by userId if provided
     }
+    if (plantId) {
+      filters.plantId = parseInt(plantId, 10); // Filter by plantId if provided
+    }
+
+    // Fetch reviews based on filters
+    reviews = await prisma.review.findMany({
+      where: filters,
+    });
+
     res.status(200).json(reviews);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 });
+
 
 // Create a review
 router.post('/', async (req, res) => {

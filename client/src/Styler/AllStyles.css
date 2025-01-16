@@ -82,6 +82,7 @@ img {
 /* Navbar */
 .navbar {
   height: 7rem; /* 95px */
+  max-width: 100%;
 }
 
 /* Inverted Button */

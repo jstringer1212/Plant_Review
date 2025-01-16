@@ -1,112 +1,216 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../api';
-import FavoriteButton from './favButton';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "../Styler/Account.css"; // Optional: Styles for the layout
 
 const Account = () => {
-  const [favoritePlants, setFavoritePlants] = useState([]);
-  const navigate = useNavigate(); // To handle redirection
-  const userId = localStorage.getItem('userId'); // Retrieve from localStorage
-  const token = localStorage.getItem('token'); // Retrieve auth token if applicable
+  const userId = sessionStorage.getItem("userId");
+  const token = sessionStorage.getItem("token");
+
+  const [favorites, setFavorites] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [plants, setPlants] = useState([]);
+  const [columns, setColumns] = useState({ colA: [], colB: [], colC: [] });
 
   useEffect(() => {
-    // If user is not logged in, redirect to login page
     if (!userId || !token) {
-      navigate('/login');
-    } else {
-      fetchFavoritePlants(); // Fetch favorite plants if logged in
+      console.log("User not authenticated");
+      return;
     }
-  }, [userId, token, navigate]);
 
-  const fetchFavoritePlants = async () => {
-    try {
-      const response = await api.get('/favorites', {
-        headers: { Authorization: `Bearer ${token}` } // Include token in request header
-      });
-      const favoritePlantIds = response.data.map((fav) => fav.plantId);
+    const fetchData = async () => {
+      try {
+        const [favResponse, revResponse, comResponse, plantResponse] =
+          await Promise.all([
+            axios.get(`/api/favorites`, {
+              params: { userId },
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`/api/reviews`, {
+              params: { userId },
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`/api/comments`, {
+              params: { userId },
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`/api/plants`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
 
-      const plantResponse = await api.get('/plants');
-      const allPlants = plantResponse.data;
+        setFavorites(favResponse.data);
+        setReviews(revResponse.data);
+        setComments(comResponse.data);
+        setPlants(plantResponse.data);
 
-      const userFavoritePlants = allPlants.filter((plant) =>
-        favoritePlantIds.includes(plant.id)
+        organizeColumns(
+          favResponse.data,
+          revResponse.data,
+          comResponse.data,
+          plantResponse.data
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [userId, token]);
+
+  const organizeColumns = (favorites, reviews, comments, plants) => {
+    const colA = [];
+    const colB = [];
+    const colC = [];
+    const renderedPlantIds = new Set(); // Track rendered plant IDs for Column B
+
+    // Map favorites into Column A
+    favorites.forEach((favorite) => {
+      const plantReviews = reviews.filter(
+        (review) => review.plantId === favorite.plantId
       );
-      setFavoritePlants(userFavoritePlants);
-    } catch (err) {
-      console.error('Error fetching favorite plants:', err);
-    }
-  };
+      const plantComments = comments.filter((comment) =>
+        plantReviews.some((review) => review.id === comment.reviewId)
+      );
 
-  const handleFavoriteUpdate = async () => {
-    await fetchFavoritePlants(); // Refresh favorite plants dynamically
+      const plantData = plants.find((plant) => plant.id === favorite.plantId); // Get plant data
+
+      if (plantData) {
+        colA.push({
+          plant: plantData,
+          reviews: plantReviews,
+          comments: plantComments,
+        });
+      }
+    });
+
+    // Map reviews/comments not associated with favorites into Column B
+    reviews.forEach((review) => {
+      if (
+        !favorites.some((fav) => fav.plantId === review.plantId) && // Exclude favorites
+        !renderedPlantIds.has(review.plantId) // Exclude duplicates
+      ) {
+        const plantComments = comments.filter(
+          (comment) => comment.reviewId === review.id
+        );
+
+        const plantData = plants.find((plant) => plant.id === review.plantId); // Get plant data
+
+        if (plantData) {
+          colB.push({
+            plant: plantData,
+            reviews: [review],
+            comments: plantComments,
+          });
+
+          renderedPlantIds.add(review.plantId); // Mark plant as rendered
+        }
+      }
+    });
+
+    // Map all reviews and comments into Column C
+    reviews.forEach((review) => {
+      const plantComments = comments.filter(
+        (comment) => comment.reviewId === review.id
+      );
+
+      const plantData = plants.find((plant) => plant.id === review.plantId); // Get plant data
+
+      colC.push({
+        review,
+        comments: plantComments,
+        plant: plantData, // Add plant data to Column C
+      });
+    });
+
+    setColumns({ colA, colB, colC });
   };
 
   return (
-    <div>
-      <div className="ui centered header">
-        <p>Welcome to your account page!</p>
-        <h3>Your Favorite Plants</h3>
+    <div className="account-container">
+      {/* Column A: Favorites */}
+      <div className="column column-a">
+        <h3>Favorites</h3>
+        {columns.colA.map((item, index) => (
+          <div key={index} className="plant-card">
+            {item.plant && (
+              <>
+                <img
+                  src={item.plant.imageUrl}
+                  alt={item.plant.cName}
+                  className="ui account image"
+                />
+                <h4>{item.plant.cName}</h4>
+                <p>{item.plant.care}</p>
+                <button
+                  className="go-to-button"
+                  onClick={() =>
+                  window.location.href = `/plants/${item.plant.id}`
+                  }
+                >
+                  Go to Plant
+                </button>
+              </>
+            )}
+          </div>
+        ))}
       </div>
-      <div className="ui centered grid">
-        {favoritePlants.length > 0 ? (
-          favoritePlants.map((plant) => (
-            <div key={plant.id} className="ui card">
-              <img
-                src={plant.imageUrl}
-                alt={plant.cName}
-                className="ui centered bordered image"
-              />
-              <h1 className="ui centered header">{plant.cName}</h1>
-              <div role="list" className="ui list">
-                <div role="listitem" className="item">
-                  <div className="header">Genus:</div>
-                  {plant.genus}
-                </div>
-                <div role="listitem" className="item">
-                  <div className="header">Species:</div>
-                  {plant.species}
-                </div>
-                <div
-                  className="ui centered segment"
-                  style={{
-                    backgroundColor: plant.pColor,
-                    width: '100%',
-                    height: '50px',
-                    border: '3px solid',
-                  }}
-                ></div>
-                <div role="listitem" className="item">
-                  <div className="header">Secondary Color:</div>
-                  {plant.sColor}
-                </div>
-                <div
-                  className="ui centered segment"
-                  style={{
-                    backgroundColor: plant.sColor,
-                    width: '100%',
-                    height: '50px',
-                    border: '3px solid',
-                  }}
-                ></div>
+
+      {/* Column B: Reviewed or Commented */}
+      <div className="column column-b">
+        <h3>Plants you have reviewed or commented on:</h3>
+        {columns.colB.map((item, index) => (
+          <div key={index} className="plant-card">
+            {item.plant && (
+              <>
+                <img
+                  src={item.plant.imageUrl}
+                  alt={item.plant.cName}
+                  className="ui account image"
+                />
+                <h4>{item.plant.cName}</h4>
+                <p>{item.plant.care}</p>
+                <button
+                  className="go-to-button"
+                  onClick={() =>
+                  window.location.href = `/plants/${item.plant.id}`
+                  }
+                >
+                  Go to Plant
+                </button>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Column C: Details */}
+      <div className="column column-c">
+        <h3>Details</h3>
+        {columns.colC.map((item, index) => (
+          <div key={index} className="review-card">
+            {item.review && item.plant && (
+              <>
+                <h4>Review: {item.plant.cName}</h4>
+                <p>Rating: {item.review.rating}</p>
+                <p>{item.review.content}</p>
+                <button
+                  className="go-to-button"
+                  onClick={() =>
+                  window.location.href = `/plants/${item.plant.id}`
+                  }
+                >
+                  Go to Plant
+                </button>
+              </>
+            )}
+            {item.comments.map((comment, idx) => (
+              <div key={idx}>
+                <p>Comment: {comment.content}</p>
               </div>
-              <div className="ui centered grid">
-                <Link to={`/plants/${plant.id}`} state={{ from: 'favorites' }}>
-                  <button className="ui button">See Plant Details</button>
-                </Link>
-                <div className="ui icon heart button">
-                  <FavoriteButton
-                    userId={Number(userId)} // Use userId from localStorage
-                    plantId={plant.id}
-                    initialFavorite={true}
-                    onClick={handleFavoriteUpdate}
-                  />
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>You have not added any plants to your favorites yet.</p>
-        )}
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

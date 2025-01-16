@@ -3,16 +3,30 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Get all comments
+// Get all comments (filtered by userId if provided)
 router.get('/', async (req, res) => {
+  const { userId } = req.query; // Extract userId from query string
+
   try {
-    const comments = await prisma.comment.findMany();
+    let comments;
+    if (userId) {
+      // If userId is provided, filter comments by userId
+      comments = await prisma.comment.findMany({
+        where: {
+          userId: parseInt(userId, 10), // Ensure the userId is parsed as an integer
+        },
+      });
+    } else {
+      // Otherwise, return all comments
+      comments = await prisma.comment.findMany();
+    }
     res.status(200).json(comments);
   } catch (err) {
     console.error('Error fetching comments:', err);
     res.status(500).json({ error: 'Failed to fetch comments' });
   }
 });
+
 
 // Create a comment
 router.post('/', async (req, res) => {

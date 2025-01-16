@@ -6,7 +6,7 @@ const Home = () => {
   const [randomPlant, setRandomPlant] = useState(null);
   const currentUser = sessionStorage.getItem('firstName ');
 
-  console.log("current user: ", currentUser);
+  
   useEffect(() => {
     const fetchPlants = async () => {
       try {

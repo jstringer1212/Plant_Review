@@ -7,8 +7,6 @@ const Navbar = () => {
   const token = sessionStorage.getItem('token');
   const currentUser = sessionStorage.getItem('firstName');
 
-  console.log("current user: ", currentUser);
-
   const isTokenValid = (token) => {
     if (!token) return false;
     try {
@@ -89,7 +87,7 @@ const Navbar = () => {
       </ul>
       <div className="navbar-center">
         <h1>Plant Review App</h1>
-        {currentUser && <h6>Logged in as: {currentUser}</h6>}
+        {currentUser && <h6>Hello {currentUser}</h6>}
       </div>
       <ul className="navbar-right">
         {renderAuthButtons()}

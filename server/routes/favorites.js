@@ -26,16 +26,30 @@ function validateFavoriteInput(data) {
   return errors;
 }
 
-// Get all favorites
+// Get all favorites (filtered by userId if provided)
 router.get('/', async (req, res) => {
+  const { userId } = req.query; // Extract userId from query string
+
   try {
-    const favorites = await prisma.favorite.findMany();
+    let favorites;
+    if (userId) {
+      // If userId is provided, filter favorites by userId
+      favorites = await prisma.favorite.findMany({
+        where: {
+          userId: parseInt(userId, 10), // Make sure to parse it as an integer
+        },
+      });
+    } else {
+      // Otherwise, return all favorites
+      favorites = await prisma.favorite.findMany();
+    }
     res.status(200).json(favorites);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch favorites' });
   }
 });
+
 
 // Add or remove a favorite
 router.post('/', async (req, res) => {
