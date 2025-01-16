@@ -24,11 +24,11 @@ const Login = ({ onClose }) => {
         // console.log("User ID:", userId, "Role:", role);
 
         // Store token and user data
-        localStorage.setItem('token', token);
-        localStorage.setItem('userId', userId);
-        localStorage.setItem('role', role);
-        localStorage.setItem('firstName', firstName);
-        localStorage.setItem('lastName', lastName);
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('role', role);
+        sessionStorage.setItem('firstName', firstName);
+        sessionStorage.setItem('lastName', lastName);
 
         if (onClose) {
           onClose(); // Close modal if triggered from modal

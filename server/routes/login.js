@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    console.log("Generated token:", token);
+    // console.log("Generated token:", token);
 
     res.status(200).json({
       message: 'Login successful',

@@ -1,20 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import FavoriteButton from './favButton';
 
 const Account = () => {
   const [favoritePlants, setFavoritePlants] = useState([]);
+  const navigate = useNavigate(); // To handle redirection
+  const userId = localStorage.getItem('userId'); // Retrieve from localStorage
+  const token = localStorage.getItem('token'); // Retrieve auth token if applicable
+
+  useEffect(() => {
+    // If user is not logged in, redirect to login page
+    if (!userId || !token) {
+      navigate('/login');
+    } else {
+      fetchFavoritePlants(); // Fetch favorite plants if logged in
+    }
+  }, [userId, token, navigate]);
 
   const fetchFavoritePlants = async () => {
     try {
-      const response = await api.get('/favorites');
+      const response = await api.get('/favorites', {
+        headers: { Authorization: `Bearer ${token}` } // Include token in request header
+      });
       const favoritePlantIds = response.data.map((fav) => fav.plantId);
 
       const plantResponse = await api.get('/plants');
       const allPlants = plantResponse.data;
 
-      // Filter plants by favorite IDs
       const userFavoritePlants = allPlants.filter((plant) =>
         favoritePlantIds.includes(plant.id)
       );
@@ -24,13 +37,8 @@ const Account = () => {
     }
   };
 
-  useEffect(() => {
-    fetchFavoritePlants();
-  }, []);
-
   const handleFavoriteUpdate = async () => {
-    // Refresh favorite plants dynamically
-    await fetchFavoritePlants();
+    await fetchFavoritePlants(); // Refresh favorite plants dynamically
   };
 
   return (
@@ -87,10 +95,10 @@ const Account = () => {
                 </Link>
                 <div className="ui icon heart button">
                   <FavoriteButton
-                    userId={Number(localStorage.getItem('userId'))}
+                    userId={Number(userId)} // Use userId from localStorage
                     plantId={plant.id}
                     initialFavorite={true}
-                    onClick={handleFavoriteUpdate} // Call fetchFavoritePlants after toggle
+                    onClick={handleFavoriteUpdate}
                   />
                 </div>
               </div>

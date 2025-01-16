@@ -21,7 +21,7 @@ const [lastName, setLastName] = useState('');
 
     try {
       const response = await api.post('/register', { firstName, lastName, email, password });
-      localStorage.setItem('token', response.data.token); // Save JWT token
+      sessionStorage.setItem('token', response.data.token); // Save JWT token
       navigate('/'); // Redirect to home or dashboard
     } catch (err) {
       setError('Registration failed');

@@ -13,11 +13,11 @@ const ReviewList = ({ plantId }) => {
   const [editingReviewId, setEditingReviewId] = useState(null); // For editing review
   const [editedReviewText, setEditedReviewText] = useState(''); // Edited review content
 
-  // Utility to get token and userId from localStorage
+  // Utility to get token and userId from sessionStorage
   const getUserInfo = () => {
-    const token = localStorage.getItem('token');
-    const userId = parseInt(localStorage.getItem('userId'), 10);
-    const role = localStorage.getItem('role');
+    const token = sessionStorage.getItem('token');
+    const userId = parseInt(sessionStorage.getItem('userId'), 10);
+    const role = sessionStorage.getItem('role');
     return { token, userId, role };
   };
 

@@ -6,22 +6,22 @@ export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('authToken');
-    const savedUserId = localStorage.getItem('userId'); // Retrieve userId from local storage
+    const savedToken = sessionStorage.getItem('authToken');
+    const savedUserId = sessionStorage.getItem('userId'); // Retrieve userId from local storage
     if (savedToken && savedUserId) {
       setAuth({ token: savedToken, userId: savedUserId });
     }
   }, []);
 
   const login = (token, userId) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('userId', userId); // Save userId to local storage
+    sessionStorage.setItem('authToken', token);
+    sessionStorage.setItem('userId', userId); // Save userId to local storage
     setAuth({ token, userId });
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userId'); // Clear userId from local storage
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userId'); // Clear userId from local storage
     setAuth(null);
   };
 

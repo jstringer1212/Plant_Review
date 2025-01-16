@@ -10,13 +10,13 @@ const AddReview = ({ plantId, onAddReview }) => {
   const { auth } = useAuth(); // Get the auth context
 
   const getToken = () => {
-    // Fallback to localStorage if auth context is missing
-    return auth?.token || localStorage.getItem('token');
+    // Fallback to sessionStorage if auth context is missing
+    return auth?.token || sessionStorage.getItem('token');
   };
 
   const getUserId = () => {
-    // Fallback to localStorage for userId
-    return auth?.userId || localStorage.getItem('userId');
+    // Fallback to sessionStorage for userId
+    return auth?.userId || sessionStorage.getItem('userId');
   };
 
   // Check if user is logged in

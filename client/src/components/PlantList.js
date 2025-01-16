@@ -8,7 +8,7 @@ const PlantList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const userId = localStorage.getItem('userId');
+  const userId = sessionStorage.getItem('userId');
 
   useEffect(() => {
     const fetchPlantsAndFavorites = async () => {

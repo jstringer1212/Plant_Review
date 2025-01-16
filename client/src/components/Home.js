@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   const [plants, setPlants] = useState([]);
   const [randomPlant, setRandomPlant] = useState(null);
-  const currentUser = localStorage.getItem('firstName ');
+  const currentUser = sessionStorage.getItem('firstName ');
 
   console.log("current user: ", currentUser);
   useEffect(() => {

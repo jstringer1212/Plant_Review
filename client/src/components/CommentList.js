@@ -11,8 +11,8 @@ const CommentList = ({ plantId, reviewId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
   const [userNames, setUserNames] = useState({}); // Store user names by userId
 
-  const token = localStorage.getItem('token');
-  const userId = parseInt(localStorage.getItem('userId'), 10);
+  const token = sessionStorage.getItem('token');
+  const userId = parseInt(sessionStorage.getItem('userId'), 10);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -75,7 +75,7 @@ const CommentList = ({ plantId, reviewId }) => {
             ...prev,
             {
               ...response.data.comment,
-              userFullName: `${localStorage.getItem('firstName')} ${localStorage.getItem('lastName')}`,
+              userFullName: `${sessionStorage.getItem('firstName')} ${sessionStorage.getItem('lastName')}`,
             },
           ]);
           setCommentText('');

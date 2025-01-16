@@ -12,7 +12,7 @@ const PlantDetail = () => {
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const userId = localStorage.getItem('userId'); // Retrieve user ID from localStorage
+  const userId = sessionStorage.getItem('userId'); // Retrieve user ID from sessionStorage
   const [isFavorite, setIsFavorite] = useState(false); // Track favorite status for this plant
 
   const from = location.state?.from || 'list'; // Determine navigation origin

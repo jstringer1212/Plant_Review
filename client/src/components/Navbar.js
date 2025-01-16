@@ -4,8 +4,8 @@ import '../Styler/Navbar.css';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
-  const currentUser = localStorage.getItem('firstName');
+  const token = sessionStorage.getItem('token');
+  const currentUser = sessionStorage.getItem('firstName');
 
   console.log("current user: ", currentUser);
 
@@ -31,7 +31,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Clear token from localStorage
+    sessionStorage.removeItem('token'); // Clear token from sessionStorage
     navigate('/login'); // Redirect to login page
   };
 
@@ -89,7 +89,7 @@ const Navbar = () => {
       </ul>
       <div className="navbar-center">
         <h1>Plant Review App</h1>
-        <h6>Logged in as: {currentUser}</h6>
+        {currentUser && <h6>Logged in as: {currentUser}</h6>}
       </div>
       <ul className="navbar-right">
         {renderAuthButtons()}
