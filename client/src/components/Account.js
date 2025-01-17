@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../Styler/Account.css"; // Optional: Styles for the layout
+import { verifyToken } from "./Utilities/authUtils";
 
 const Account = () => {
   const userId = sessionStorage.getItem("userId");
@@ -14,10 +15,23 @@ const Account = () => {
   const userStatus = sessionStorage.getItem('status');
 
   useEffect(() => {
-    if (!userId || !token) {
-      console.log("User not authenticated");
-      return;
-    }
+    const authenticateUser = async () => {
+      if (!userId || !token) {
+        console.log("User not authenticated");
+        window.location.href = "/login";
+        return;
+      }
+
+      // Verify the JWT token
+      const isTokenValid = await verifyToken(token);
+      if (!isTokenValid) {
+        console.log("Invalid or expired token");
+        window.location.href = "/login";
+        return;
+      }
+
+      fetchData();
+    };
 
     const fetchData = async () => {
       try {
@@ -56,7 +70,7 @@ const Account = () => {
       }
     };
 
-    fetchData();
+    authenticateUser();
   }, [userId, token]);
 
   const organizeColumns = (favorites, reviews, comments, plants) => {

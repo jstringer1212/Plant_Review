@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { SketchPicker } from 'react-color';
+import { verifyToken } from "./Utilities/authUtils"; // Import verifyToken
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
@@ -17,18 +18,25 @@ const Admin = () => {
   const token = sessionStorage.getItem('token'); // Get token from sessionStorage
 
   useEffect(() => {
-    axios
-      .get('/api/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        setUsers(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching users:', error);
-      });
+    // Verify token before making API call
+    if (token && verifyToken(token)) {
+      axios
+        .get('/api/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setUsers(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching users:', error);
+        });
+    } else {
+      // Redirect or show error if the token is invalid or expired
+      console.error("Invalid or expired token");
+      window.location.href = "/login"; // Example: Redirect to login page
+    }
   }, [token]);
 
   const handleRoleChange = (userId, role) => {
@@ -36,96 +44,114 @@ const Admin = () => {
     setLoadingRole(userId); // Set the user as loading
     setRoleUpdateSuccess(false); // Reset the success state
 
-    axios
-      .put(
-        `/api/users/${userId}/role`,
-        { role },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .then((response) => {
-        console.log('Role updated successfully:', response.data);
-        setTimeout(() => {
-          setUsers((prevState) =>
-            prevState.map((user) =>
-              user.id === userId ? { ...user, role: response.data.role } : user
-            )
-          );
-        }, 5000);
-        setRoleUpdateSuccess(true); // Mark the update as successful
-      })
-      .catch((error) => {
-        console.error('Error updating role:', error.response?.data || error.message);
-        setRoleUpdateSuccess(false); // Mark the update as failed
-      })
-      .finally(() => {
-        setLoadingRole(null); // Reset loading state
-      });
+    // Verify token before updating role
+    if (token && verifyToken(token)) {
+      axios
+        .put(
+          `/api/users/${userId}/role`,
+          { role },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        .then((response) => {
+          console.log('Role updated successfully:', response.data);
+          setTimeout(() => {
+            setUsers((prevState) =>
+              prevState.map((user) =>
+                user.id === userId ? { ...user, role: response.data.role } : user
+              )
+            );
+          }, 5000);
+          setRoleUpdateSuccess(true); // Mark the update as successful
+        })
+        .catch((error) => {
+          console.error('Error updating role:', error.response?.data || error.message);
+          setRoleUpdateSuccess(false); // Mark the update as failed
+        })
+        .finally(() => {
+          setLoadingRole(null); // Reset loading state
+        });
+    } else {
+      console.error("Invalid or expired token");
+      window.location.href = "/login"; // Redirect to login if token is invalid
+    }
   };
 
   const handleStatusChange = (userId, status) => {
     console.log(`Changing status for user ${userId} to ${status === 'active' ? 'inactive' : 'active'}`);
     const newStatus = status === 'active' ? 'inactive' : 'active';
 
-    axios
-      .put(
-        `/api/users/${userId}/status`,
-        { status: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .then(() => {
-        console.log(`User ${userId} status updated to ${newStatus}`);
-        setUsers((prevState) =>
-          prevState.map((user) =>
-            user.id === userId ? { ...user, status: newStatus } : user
-          )
-        );
-      })
-      .catch((error) => {
-        console.error('Error updating user status:', error);
-      });
+    // Verify token before changing status
+    if (token && verifyToken(token)) {
+      axios
+        .put(
+          `/api/users/${userId}/status`,
+          { status: newStatus },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        .then(() => {
+          console.log(`User ${userId} status updated to ${newStatus}`);
+          setUsers((prevState) =>
+            prevState.map((user) =>
+              user.id === userId ? { ...user, status: newStatus } : user
+            )
+          );
+        })
+        .catch((error) => {
+          console.error('Error updating user status:', error);
+        });
+    } else {
+      console.error("Invalid or expired token");
+      window.location.href = "/login"; // Redirect to login if token is invalid
+    }
   };
 
   const handlePlantSubmit = (e) => {
     e.preventDefault();
     console.log('Submitting new plant data:', plants);
 
-    axios
-      .post(
-        '/api/plants',
-        plants,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log('Plant added successfully:', response.data);
-        alert('Plant added successfully!');
-        setPlants({
-          cName: '',
-          sName: '',
-          care: '',
-          imageUrl: '',
-          pColor: '',
-          sColor: '',
-          genus: '',
-          species: '',
+    // Verify token before submitting plant
+    if (token && verifyToken(token)) {
+      axios
+        .post(
+          '/api/plants',
+          plants,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log('Plant added successfully:', response.data);
+          alert('Plant added successfully!');
+          setPlants({
+            cName: '',
+            sName: '',
+            care: '',
+            imageUrl: '',
+            pColor: '',
+            sColor: '',
+            genus: '',
+            species: '',
+          });
+        })
+        .catch((error) => {
+          console.error('Error adding plant:', error);
         });
-      })
-      .catch((error) => {
-        console.error('Error adding plant:', error);
-      });
+    } else {
+      console.error("Invalid or expired token");
+      window.location.href = "/login"; // Redirect to login if token is invalid
+    }
   };
 
   const handleColorChange = (colorType, colorValue) => {
