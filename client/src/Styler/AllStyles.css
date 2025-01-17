@@ -56,8 +56,11 @@ img {
   margin: 0.625rem; /* 10px */
   padding: 0.25rem; /* 4px */
   color: rgb(0, 0, 0);
-  background-color: rgb(5, 255, 26);
-  border: 0.1875rem solid rgb(0, 0, 0); /* 3px */
+  background-color: rgb(2, 248, 22);
+  border: .125rem solid black;
+}
+.ui.button:hover {
+  background-color: #04a3ff;
 }
 
 /* Home Section */
@@ -105,6 +108,7 @@ img {
   padding: 0.5rem; /* 8px */
   background-color: #ccccff;
   border: .25rem solid black;
+  width: 100%;
 }
 
 /* Heart Button */
@@ -194,7 +198,6 @@ img {
 /* Review List Section */
 .review-list {
   padding: 1.25rem; /* 20px */
-  border: 0.125rem solid rgb(50, 209, 50); /* 2px */
 }
 .review-header {
   display: flex;
@@ -218,16 +221,32 @@ img {
   border-radius: 0.3125rem; /* 5px */
   font-size: 0.875rem; /* 14px */
 }
+
 .add-review button {
   margin: 0.3125rem; /* 5px */
   padding: 0.625rem; /* 10px */
-  background-color: #4CAF50;
+  background-color: #449c46;
   color: white;
   border: none;
   cursor: pointer;
+  border: .125rem solid black;
 }
 .add-review button:hover {
-  background-color: #45a049;
+  background-color: #4f04ff;
+}
+
+.add-comment button {
+  margin: 0.125rem; /* 5px */
+  padding: 0.25rem; /* 10px */
+  height: 2.25rem;
+  background-color: #449c46;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border: .125rem solid black;
+}
+.add-comment button:hover {
+  background-color: #4f04ff;
 }
 
 /* Error Styling */
@@ -276,7 +295,7 @@ img {
 
 /* Comment */
 .comment {
-  border: 0.625rem solid lightgray; /* 10px */
+  border: 0.625rem solid rgb(223, 223, 223); /* 10px */
   margin-left: 10%;
   display: flex;
   justify-content: space-between;

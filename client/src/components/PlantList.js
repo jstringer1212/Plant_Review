@@ -9,6 +9,7 @@ const PlantList = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const userId = sessionStorage.getItem('userId');
+  const userStatus = sessionStorage.getItem('status');
 
   useEffect(() => {
     const fetchPlantsAndFavorites = async () => {
@@ -100,7 +101,7 @@ const PlantList = () => {
                   <Link to={`/plants/${plant.id}`}>
                     <button className="ui button">See Plant Details</button>
                   </Link>
-                  {userId && (
+                  {userId && userStatus !== 'inactive' && (
                     <FavoriteButton
                       userId={parseInt(userId, 10)}
                       plantId={plant.id}

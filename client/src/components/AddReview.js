@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -74,7 +74,7 @@ const AddReview = ({ plantId, onAddReview }) => {
 
   return (
     <div className="add-review">
-      {isLoggedIn ? (
+      {isLoggedIn && (
         <>
           <h3>Add a Review</h3>
           {error && <p className="error">{error}</p>}
@@ -110,9 +110,7 @@ const AddReview = ({ plantId, onAddReview }) => {
             </button>
           </form>
         </>
-      ) : (
-        <p>You must be logged in to add a review. Please log in to continue.</p>
-      )}
+      ) }
     </div>
   );
 };

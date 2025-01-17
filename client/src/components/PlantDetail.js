@@ -16,9 +16,11 @@ const PlantDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false); // Track favorite status for this plant
 
   const from = location.state?.from || 'list'; // Determine navigation origin
-
+  const userStatus = sessionStorage.getItem('status');
   useEffect(() => {
     const fetchPlantDetails = async () => {
+      
+      console.log( "user status: ", userStatus);
       try {
         const response = await fetch(`/api/plants/${id}`);
         if (!response.ok) {
@@ -104,13 +106,13 @@ const PlantDetail = () => {
                   Back to {from === 'favorites' ? 'Favorites' : 'Plant List'}
                 </button>
               </Link>
-              {userId &&
+              {userId && userStatus !== 'inactive' && (
               <FavoriteButton
                 userId={parseInt(userId, 10)}
                 plantId={plant.id}
                 initialFavorite={isFavorite} // Pass the favorite status dynamically
               />
-              }
+              )}
             </div>
           </>
         ) : (
@@ -119,6 +121,7 @@ const PlantDetail = () => {
       </div>
 
       {/* Reviews and Comments Section (75% width) */}
+      {userId && userStatus !== 'inactive' && (
       <div style={{ flex: '0 0 75%', padding: '20px' }}>
         <div className="ui comments">
           <ReviewList plantId={plant.id} plantName={plant.cName} />
@@ -128,6 +131,7 @@ const PlantDetail = () => {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

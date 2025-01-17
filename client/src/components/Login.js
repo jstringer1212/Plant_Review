@@ -31,8 +31,8 @@ const Login = ({ onClose }) => {
         sessionStorage.setItem('lastName', lastName);
         sessionStorage.setItem('status', status)
 
-        const userStatus = sessionStorage.getItem('status')
-        console.log( "user status: ", userStatus);  //this is returning undefined
+        const userStatus = sessionStorage.getItem('status');
+        console.log( "user status: ", userStatus);  
 
         if (userStatus !== 'active') {
           setError('Please contact an Administrator to return your account to active');
