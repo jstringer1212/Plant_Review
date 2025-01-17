@@ -70,7 +70,7 @@ const Home = () => {
             </div>
             <div className="ui centered grid">
               <button className="ui button" onClick={handleRefresh}>
-                Get Another Random Plant
+                RANDOMIZE ME!!
               </button>
               <Link to={`/plants/${randomPlant.id}`}>
                 <button className="ui button">Go to Plant Page</button>
