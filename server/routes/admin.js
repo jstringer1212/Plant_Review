@@ -105,14 +105,16 @@ router.post('/promote-user', adminMiddleware, async (req, res) => {
 /**
  * Update user details (only accessible by admin)
  */
-router.put('/users/:id', adminMiddleware, async (req, res) => {
+router.put('/users/:id/role', adminMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { role } = req.body;
+  const { role } = req.body;  // returning undefined here. so need to track down where this should be coming from in Admin.js
+  console.log("Role", role);
 
-  console.log(`Updating user with ID: ${id}, New Role: ${role}`);
+  console.log(`Updating user with ID: ${id}, New Role ln 113: ${role}`);
 
   if (!role || !['admin', 'user'].includes(role)) {
     console.error('Invalid or missing role');
+    console.log("Role", role);
     return res.status(400).json({ error: 'Invalid or missing role' });
   }
 
@@ -127,6 +129,34 @@ router.put('/users/:id', adminMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error updating user:', error);
     res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
+/**
+ * Update user status (only accessible by admin)
+ */
+router.put('/users/:id/status', adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  console.log(`Updating status for user with ID: ${id}, New Status: ${status}`);
+
+  if (!status || !['active', 'inactive'].includes(status)) {
+    console.error('Invalid or missing status');
+    return res.status(400).json({ error: 'Invalid or missing status' });
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: Number(id) },
+      data: { status },
+    });
+
+    console.log('User status updated successfully:', user);
+    res.status(200).json({ message: 'User status updated successfully', user });
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    res.status(500).json({ error: 'Failed to update user status' });
   }
 });
 

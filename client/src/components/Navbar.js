@@ -30,6 +30,11 @@ const Navbar = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('token'); // Clear token from sessionStorage
+    sessionStorage.removeItem('userId'); // Remove userId
+    sessionStorage.removeItem('role'); // Remove role
+    sessionStorage.removeItem('firstName'); // Remove firstName
+    sessionStorage.removeItem('lastName'); // Remove lastName
+    sessionStorage.removeItem('status'); // Remove status
     navigate('/login'); // Redirect to login page
   };
 

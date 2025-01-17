@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useAuth } from '../contexts/AuthContext';
 import { SketchPicker } from 'react-color';
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
-  const { auth } = useAuth();
   const [plants, setPlants] = useState({
     cName: '',
     sName: '',
@@ -16,30 +14,35 @@ const Admin = () => {
   });
   const [loadingRole, setLoadingRole] = useState(null); // Track which user is being updated
   const [roleUpdateSuccess, setRoleUpdateSuccess] = useState(false); // Track role update success
+  const token = sessionStorage.getItem('token'); // Get token from sessionStorage
 
   useEffect(() => {
     axios
-      .get('/api/users')
+      .get('/api/users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         setUsers(response.data);
       })
       .catch((error) => {
         console.error('Error fetching users:', error);
       });
-  }, []);
+  }, [token]);
 
   const handleRoleChange = (userId, role) => {
     console.log(`Updating role for user ${userId} to ${role}`);
     setLoadingRole(userId); // Set the user as loading
     setRoleUpdateSuccess(false); // Reset the success state
-    
+
     axios
       .put(
-        `/api/users/${userId}`,
-        { userId, role },
+        `/api/users/${userId}/role`,
+        { role },
         {
           headers: {
-            Authorization: `Bearer ${auth.token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -47,16 +50,16 @@ const Admin = () => {
       .then((response) => {
         console.log('Role updated successfully:', response.data);
         setTimeout(() => {
-        setUsers((prevState) =>
-          prevState.map((user) =>
-            user.id === userId ? { ...user, role: response.data.role } : user
-          )
-        );
-      }, 5000);
+          setUsers((prevState) =>
+            prevState.map((user) =>
+              user.id === userId ? { ...user, role: response.data.role } : user
+            )
+          );
+        }, 5000);
         setRoleUpdateSuccess(true); // Mark the update as successful
       })
       .catch((error) => {
-        console.error('Error updating role here:', error.response?.data || error.message);
+        console.error('Error updating role:', error.response?.data || error.message);
         setRoleUpdateSuccess(false); // Mark the update as failed
       })
       .finally(() => {
@@ -64,17 +67,26 @@ const Admin = () => {
       });
   };
 
-  const handleBanStatusChange = (userId, isBanned) => {
-    console.log(`Changing ban status for user ${userId} to ${!isBanned ? 'active' : 'inactive'}`);
-    const newActiveStatus = isBanned ? false : true;
-  
+  const handleStatusChange = (userId, status) => {
+    console.log(`Changing status for user ${userId} to ${status === 'active' ? 'inactive' : 'active'}`);
+    const newStatus = status === 'active' ? 'inactive' : 'active';
+
     axios
-      .put(`/api/users/${userId}`, { active: newActiveStatus })
+      .put(
+        `/api/users/${userId}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       .then(() => {
-        console.log(`User ${userId} status updated to ${newActiveStatus ? 'active' : 'inactive'}`);
+        console.log(`User ${userId} status updated to ${newStatus}`);
         setUsers((prevState) =>
           prevState.map((user) =>
-            user.id === userId ? { ...user, active: newActiveStatus } : user
+            user.id === userId ? { ...user, status: newStatus } : user
           )
         );
       })
@@ -88,7 +100,15 @@ const Admin = () => {
     console.log('Submitting new plant data:', plants);
 
     axios
-      .post('/api/plants', plants)
+      .post(
+        '/api/plants',
+        plants,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then((response) => {
         console.log('Plant added successfully:', response.data);
         alert('Plant added successfully!');
@@ -104,7 +124,7 @@ const Admin = () => {
         });
       })
       .catch((error) => {
-        console.error('Error adding plant here:', error);
+        console.error('Error adding plant:', error);
       });
   };
 
@@ -127,7 +147,7 @@ const Admin = () => {
               <th>Last Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Active</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -139,10 +159,7 @@ const Admin = () => {
                 <td>
                   <select
                     value={user.role}
-                    onChange={(e) => {
-                      console.log(`Role changed for user ${user.id} to ${e.target.value}`);
-                      handleRoleChange(user.id, e.target.value);
-                    }}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     disabled={loadingRole === user.id} // Disable while updating
                   >
                     <option value="user">User</option>
@@ -153,15 +170,12 @@ const Admin = () => {
                 </td>
                 <td
                   style={{
-                    backgroundColor: user.active ? 'lightgreen' : 'lightcoral',
+                    backgroundColor: user.status === 'active' ? 'lightgreen' : 'lightcoral',
                     cursor: 'pointer',
                   }}
-                  onClick={() => {
-                    console.log(`Ban status clicked for user ${user.id}`);
-                    handleBanStatusChange(user.id, !user.active);
-                  }}
+                  onClick={() => handleStatusChange(user.id, user.status)}
                 >
-                  {user.active ? 'Active' : 'Inactive'}
+                  {user.status === 'active' ? 'Active' : 'Inactive'}
                 </td>
               </tr>
             ))}
@@ -194,7 +208,7 @@ const Admin = () => {
             <label>Genus:</label>
             <input
               type="text"
-              value={plants.sName}
+              value={plants.genus || ''}
               onChange={(e) => setPlants({ ...plants, genus: e.target.value })}
               required
             />
@@ -203,7 +217,7 @@ const Admin = () => {
             <label>Species:</label>
             <input
               type="text"
-              value={plants.sName}
+              value={plants.species || ''}
               onChange={(e) => setPlants({ ...plants, species: e.target.value })}
               required
             />
@@ -228,22 +242,18 @@ const Admin = () => {
 
           <div>
             <label>Primary Color:</label>
-            <div>
-              <SketchPicker
-                color={plants.pColor}
-                onChangeComplete={(color) => handleColorChange('pColor', color.hex)}
-              />
-            </div>
+            <SketchPicker
+              color={plants.pColor}
+              onChangeComplete={(color) => handleColorChange('pColor', color.hex)}
+            />
           </div>
 
           <div>
             <label>Secondary Color:</label>
-            <div>
-              <SketchPicker
-                color={plants.sColor}
-                onChangeComplete={(color) => handleColorChange('sColor', color.hex)}
-              />
-            </div>
+            <SketchPicker
+              color={plants.sColor}
+              onChangeComplete={(color) => handleColorChange('sColor', color.hex)}
+            />
           </div>
 
           <button type="submit">Add Plant</button>

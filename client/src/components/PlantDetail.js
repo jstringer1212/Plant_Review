@@ -27,11 +27,13 @@ const PlantDetail = () => {
         const data = await response.json();
         setPlant(data);
 
+        if (userId) {
         // Check if this plant is already a favorite
         const favoriteResponse = await fetch(`/api/favorites?userId=${userId}`);
         const favoriteData = await favoriteResponse.json();
         const isFavorited = favoriteData.some((fav) => fav.plantId === parseInt(id, 10));
         setIsFavorite(isFavorited);
+        }
       } catch (error) {
         console.error('Error fetching plant details:', error);
         setError('Failed to load plant details. Please try again later.');
@@ -102,11 +104,13 @@ const PlantDetail = () => {
                   Back to {from === 'favorites' ? 'Favorites' : 'Plant List'}
                 </button>
               </Link>
+              {userId &&
               <FavoriteButton
                 userId={parseInt(userId, 10)}
                 plantId={plant.id}
                 initialFavorite={isFavorite} // Pass the favorite status dynamically
               />
+              }
             </div>
           </>
         ) : (

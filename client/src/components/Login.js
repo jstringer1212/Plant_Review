@@ -20,8 +20,8 @@ const Login = ({ onClose }) => {
 
       if (response.status === 200) {
         // console.log('response data', response.data);
-        const { token, userId, role, firstName, lastName } = response.data;
-        // console.log("User ID:", userId, "Role:", role);
+        const { token, userId, role, firstName, lastName, status } = response.data;
+        console.log("User ID:", userId, "Role:", role, "Status", status);
 
         // Store token and user data
         sessionStorage.setItem('token', token);
@@ -29,7 +29,16 @@ const Login = ({ onClose }) => {
         sessionStorage.setItem('role', role);
         sessionStorage.setItem('firstName', firstName);
         sessionStorage.setItem('lastName', lastName);
+        sessionStorage.setItem('status', status)
 
+        const userStatus = sessionStorage.getItem('status')
+        console.log( "user status: ", userStatus);  //this is returning undefined
+
+        if (userStatus !== 'active') {
+          setError('Please contact an Administrator to return your account to active');
+          setIsLoading(false);
+          return;
+        }
         if (onClose) {
           onClose(); // Close modal if triggered from modal
         } else {

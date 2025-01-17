@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role, firstName: user.firstName }, 
+      { id: user.id, email: user.email, role: user.role, firstName: user.firstName, status: user.status }, 
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -45,6 +45,7 @@ router.post('/', async (req, res) => {
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
+      status: user.status,
     });
   } catch (error) {
     console.error('Login error:', error.stack);
