@@ -188,8 +188,9 @@ const ReviewList = ({ plantId }) => {
               <h5 className="review">{userFullName}</h5>
               <div className="review-text">
                 {editingReviewId === review.id ? (
-                  <div>
+                  <div className='edit'>
                     <textarea
+                      className='edit-field'
                       value={editedReviewText}
                       onChange={(e) => setEditedReviewText(e.target.value)}
                       placeholder="Edit your review..."
@@ -197,7 +198,7 @@ const ReviewList = ({ plantId }) => {
                     />
                     <div>
                       <button onClick={() => setEditingReviewId(null)}>Cancel</button>
-                      <button onClick={handleSaveReview}>Save</button>
+                      <button className="ui icon save" onClick={handleSaveReview}><i className="save icon"></i></button>
                     </div>
                   </div>
                 ) : (
