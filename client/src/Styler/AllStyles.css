@@ -51,8 +51,8 @@ img {
 
 /* General Button */
 .ui.button {
-  height: 4.6875rem; /* 75px */
-  width: 4.6875rem; /* 75px */
+  height: 3.6875rem; /* 75px */
+  width: 3.6875rem; /* 75px */
   margin: 0.625rem; /* 10px */
   padding: 0.25rem; /* 4px */
   color: rgb(0, 0, 0);
@@ -318,4 +318,35 @@ img {
 /* Author */
 .author {
   width: 3.125rem; /* 50px */
+}
+
+.plant-card {
+  background-color: cornsilk;
+}
+
+.review-card {
+  background-color: cornsilk;
+}
+
+.warning {
+  background-color: red;
+  margin: -1rem;
+  animation: colorFlash 1s infinite;
+}
+@keyframes colorFlash {
+  0% {
+    background-color: rgb(238, 255, 0);
+  }
+  25% {
+    background-color: #4CAF50;
+  }
+  50% {
+    background-color: rgb(68, 6, 241);
+  }
+  75% {
+    background-color: black;
+  }
+  100% {
+    background-color: red;
+  }
 }

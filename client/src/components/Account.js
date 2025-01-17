@@ -11,6 +11,7 @@ const Account = () => {
   const [comments, setComments] = useState([]);
   const [plants, setPlants] = useState([]);
   const [columns, setColumns] = useState({ colA: [], colB: [], colC: [] });
+  const userStatus = sessionStorage.getItem('status');
 
   useEffect(() => {
     if (!userId || !token) {
@@ -143,7 +144,7 @@ const Account = () => {
                 <h4>{item.plant.cName}</h4>
                 <p>{item.plant.care}</p>
                 <button
-                  className="go-to-button"
+                  className="ui button"
                   onClick={() =>
                   window.location.href = `/plants/${item.plant.id}`
                   }
@@ -171,7 +172,7 @@ const Account = () => {
                 <h4>{item.plant.cName}</h4>
                 <p>{item.plant.care}</p>
                 <button
-                  className="go-to-button"
+                  className="ui button"
                   onClick={() =>
                   window.location.href = `/plants/${item.plant.id}`
                   }
@@ -195,7 +196,7 @@ const Account = () => {
                 <p>Rating: {item.review.rating}</p>
                 <p>{item.review.content}</p>
                 <button
-                  className="go-to-button"
+                  className="ui button"
                   onClick={() =>
                   window.location.href = `/plants/${item.plant.id}`
                   }
@@ -213,6 +214,7 @@ const Account = () => {
         ))}
       </div>
     </div>
+    
   );
 };
 

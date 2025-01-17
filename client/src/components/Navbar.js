@@ -6,6 +6,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const token = sessionStorage.getItem('token');
   const currentUser = sessionStorage.getItem('firstName');
+  const userStatus = sessionStorage.getItem('status');
+  const userId = sessionStorage.getItem('userId');
 
   const isTokenValid = (token) => {
     if (!token) return false;
@@ -93,6 +95,11 @@ const Navbar = () => {
       <div className="navbar-center">
         <h1>Plant Review App</h1>
         {currentUser && <h6>Hello {currentUser}</h6>}
+        <div className="warning">
+        {userId && userStatus !== 'active' && (
+          <h1> Warning!! Your account has been suspended!!</h1>
+          )}
+        </div>
       </div>
       <ul className="navbar-right">
         {renderAuthButtons()}
