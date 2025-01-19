@@ -3,7 +3,7 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const adminMiddleware = require('../middleware/adminMiddleware'); // Import the admin check middleware
-
+const LEAD_ADMIN_ID = process.env.LEAD_ADMIN_ID;
 /**
  * Add a new plant (only accessible by admin)
  */
@@ -107,11 +107,15 @@ router.post('/promote-user', adminMiddleware, async (req, res) => {
  */
 router.put('/users/:id/role', adminMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { role } = req.body;  // returning undefined here. so need to track down where this should be coming from in Admin.js
-  console.log("Role", role);
+  const { role } = req.body;
 
-  console.log(`Updating user with ID: ${id}, New Role ln 113: ${role}`);
-
+  console.log("Role", role);  //role is correct
+  console.log(`Updating user with ID: ${id}, New Role ln 113: ${role}`); //userId and role are correct
+  console.log('Lead ID: ', LEAD_ADMIN_ID)
+  if (id === LEAD_ADMIN_ID || id === id) {
+    console.error('Access denied');
+    return res.status(403).json({ error: 'Can not update role. Access denied.'});
+  }
   if (!role || !['admin', 'user'].includes(role)) {
     console.error('Invalid or missing role');
     console.log("Role", role);

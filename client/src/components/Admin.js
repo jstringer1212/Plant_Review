@@ -17,6 +17,8 @@ const Admin = () => {
   const [roleUpdateSuccess, setRoleUpdateSuccess] = useState(false); // Track role update success
   const token = sessionStorage.getItem('token'); // Get token from sessionStorage
 
+  const LEAD_ADMIN_ID = process.env.REACT_APP_LEAD_ADMIN_ID;
+  console.log('LEAD_ADMIN_ID:', LEAD_ADMIN_ID);
   useEffect(() => {
     // Verify token before making API call
     if (token && verifyToken(token)) {
@@ -41,6 +43,13 @@ const Admin = () => {
 
   const handleRoleChange = (userId, role) => {
     console.log(`Updating role for user ${userId} to ${role}`);
+
+    if (userId === LEAD_ADMIN_ID) {
+      // Prevent changes to the lead admin's role
+      alert("You cannot change the role of the lead admin.");
+      return;
+    }
+
     setLoadingRole(userId); // Set the user as loading
     setRoleUpdateSuccess(false); // Reset the success state
 
@@ -83,6 +92,13 @@ const Admin = () => {
 
   const handleStatusChange = (userId, status) => {
     console.log(`Changing status for user ${userId} to ${status === 'active' ? 'inactive' : 'active'}`);
+    
+    if (userId === LEAD_ADMIN_ID) {
+      // Prevent changes to the lead admin's role
+      alert("You cannot change the role of the lead admin.");
+      return;
+    }
+
     const newStatus = status === 'active' ? 'inactive' : 'active';
 
     // Verify token before changing status
