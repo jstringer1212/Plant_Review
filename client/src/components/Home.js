@@ -5,7 +5,7 @@ const Home = () => {
   const [plants, setPlants] = useState([]);
   const [randomPlant, setRandomPlant] = useState(null);
   const currentUser = sessionStorage.getItem('firstName ');
-
+  console.log('current user: ', currentUser);
   
   useEffect(() => {
     const fetchPlants = async () => {
@@ -33,7 +33,7 @@ const Home = () => {
 
   return (
     <div>
-      <h2 className="ui centered header">Welcome to the Plant App</h2>
+      <h2 className="ui centered header">Welcome to the Plant App {currentUser}</h2>
       <div className="plants">
         {randomPlant ? (
           <div className="ui centered card" style={{ backgroundColor: '#f5f2f2' }}>

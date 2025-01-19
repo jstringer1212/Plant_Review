@@ -24,11 +24,19 @@ router.post('/', async (req, res) => {
         lastName,
         email,
         password: hashedPassword,
+        role: 'user',
+        status: 'active',
       },
     });
     
     const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(201).json({ message: 'User created', token });
+    res.status(201).json({ message: 'User created', 
+      token,
+      userId: newUser.id,
+      role: newUser.role,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      status: newUser.status, });
   } catch (error) {
     console.error("Error in registration: ", error);
     res.status(500).json({ error: 'Failed to register user' });

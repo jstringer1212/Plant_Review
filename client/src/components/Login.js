@@ -19,7 +19,6 @@ const Login = ({ onClose }) => {
       const response = await api.post('/login', { email, password });
 
       if (response.status === 200) {
-        // console.log('response data', response.data);
         const { token, userId, role, firstName, lastName, status } = response.data;
         console.log("User ID:", userId, "Role:", role, "Status", status);
 
@@ -29,10 +28,9 @@ const Login = ({ onClose }) => {
         sessionStorage.setItem('role', role);
         sessionStorage.setItem('firstName', firstName);
         sessionStorage.setItem('lastName', lastName);
-        sessionStorage.setItem('status', status)
+        sessionStorage.setItem('status', status);
 
         const userStatus = sessionStorage.getItem('status');
-        console.log( "user status: ", userStatus);  
 
         if (userStatus !== 'active') {
           setError('Please contact an Administrator to return your account to active');

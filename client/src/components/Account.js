@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { api } from '../api';
-import "../Styler/Account.css"; // Optional: Styles for the layout
+import "../Styler/Account.css"; 
 import { verifyToken } from "./Utilities/authUtils";
 
 const Account = () => {

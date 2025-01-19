@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api'; // Assuming your API is set up
+import { api } from '../api'; 
+import "../Styler/Register.css";
 
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
-const [lastName, setLastName] = useState('');
+  const [lastName, setLastName] = useState('');
 
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -21,8 +22,19 @@ const [lastName, setLastName] = useState('');
 
     try {
       const response = await api.post('/register', { firstName, lastName, email, password });
-      sessionStorage.setItem('token', response.data.token); // Save JWT token
+      if (response.status === 201) {
+        const { token, userId, role, firstName, lastName, status } = response.data;
+        // Save the values to sessionStorage
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('role', role);
+        sessionStorage.setItem('firstName', firstName);
+        sessionStorage.setItem('lastName', lastName);
+        sessionStorage.setItem('status', status);
+        sessionStorage.setItem('token', token);
+      }
+      setTimeout(() => { //delay to allow session data to be written
       navigate('/'); // Redirect to home or dashboard
+    }, 500);//delay to allow session data to be written
     } catch (err) {
       setError('Registration failed');
     }
