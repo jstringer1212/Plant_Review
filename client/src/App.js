@@ -11,6 +11,8 @@ import ReviewDetail from './components/ReviewDetail';
 import Account from './components/Account';
 import Home from './components/Home';
 import Admin from './components/Admin';
+import ManageUsers from './components/ManageUsers';
+import AddPlant from './components/AddPlant';
 import { AuthProvider } from './contexts/AuthContext';  // Import AuthContext
 import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
 import './Styler/AllStyles.css';
@@ -32,6 +34,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/account" element={<ProtectedRoute element={<Account />} />} />
           <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
+          <Route path="/manageusers" element={<ProtectedRoute element={<ManageUsers />} />} />
+          <Route path="/addplant" element={<ProtectedRoute element={<AddPlant />} />} />
         </Routes>
       </div>
     </AuthProvider>
