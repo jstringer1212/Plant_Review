@@ -47,4 +47,26 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Add a Plant
+router.post('/', async ( req, res) => {
+  const { cName, sName, care, imageUrl,pColor, sColor, genus, species} = req.body;
+  try {
+    const newPlant = await prisma.plant.create({
+      data: {
+        cName,
+        sName,
+        care,
+        imageUrl,
+        pColor,
+        sColor,
+        genus,
+        species
+      },
+    });
+    res.status(201).json(newPlant);
+  } catch (err) {
+    res.status(500).json({ error: 'failed to add plant' });
+  }
+});
+
 module.exports = router;
