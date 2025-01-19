@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { SketchPicker } from 'react-color';
 import { verifyToken } from './Utilities/authUtils'; // Import verifyToken
+import '../Styler/AddPlant.css'
+import { Form, Input, TextArea, Button } from 'semantic-ui-react'; // Use Semantic UI components
 
 const AddPlant = () => {
   const [plants, setPlants] = useState({
@@ -61,81 +63,109 @@ const AddPlant = () => {
   };
 
   return (
-    <div className="ui form" style={{ padding: '20px' }}>
+    <div 
+        className="ui form container" 
+        
+    >
       <h2>Add Plant</h2>
-      <form onSubmit={handlePlantSubmit}>
-        <div>
+      <span></span>
+      <Form className="ui form" onSubmit={handlePlantSubmit}>
+        <Form.Field>
           <label>Common Name:</label>
-          <input
+          <Input
             type="text"
             value={plants.cName}
             onChange={(e) => setPlants({ ...plants, cName: e.target.value })}
             required
           />
-        </div>
-        <div>
+        </Form.Field>
+
+        <Form.Field>
           <label>Scientific Name:</label>
-          <input
+          <Input
             type="text"
             value={plants.sName}
             onChange={(e) => setPlants({ ...plants, sName: e.target.value })}
             required
           />
-        </div>
-        <div>
+        </Form.Field>
+
+        <Form.Field>
           <label>Genus:</label>
-          <input
+          <Input
             type="text"
             value={plants.genus}
             onChange={(e) => setPlants({ ...plants, genus: e.target.value })}
             required
           />
-        </div>
-        <div>
+        </Form.Field>
+
+        <Form.Field>
           <label>Species:</label>
-          <input
+          <Input
             type="text"
             value={plants.species}
             onChange={(e) => setPlants({ ...plants, species: e.target.value })}
             required
           />
-        </div>
-        <div>
+        </Form.Field>
+
+        <Form.Field>
           <label>Care Instructions:</label>
-          <textarea
+          <TextArea
             value={plants.care}
             onChange={(e) => setPlants({ ...plants, care: e.target.value })}
             required
           />
-        </div>
-        <div>
+        </Form.Field>
+
+        <Form.Field>
           <label>Image URL:</label>
-          <input
+          <Input
             type="url"
             value={plants.imageUrl}
             onChange={(e) => setPlants({ ...plants, imageUrl: e.target.value })}
             required
           />
-        </div>
+        </Form.Field>
+        <Form.Field className="flex"
+            style={{
+            background: `linear-gradient(to bottom right, ${plants.pColor || '#ffffff'}, ${plants.sColor || '#ffffff'})`,
+            }}>
+            <div className="color-picker"
+            >
+                <div
+                    className="color-preview"
+                    style={{
+                    backgroundColor: plants.pColor || "transparent", // Dynamic background color
+                    }}
+                ></div>
+                <label>Primary Color:</label>
+                <SketchPicker
+                color={plants.pColor}
+                onChangeComplete={(color) => handleColorChange("pColor", color.hex)}
+                />
+                
+            </div>
 
-        <div>
-          <label>Primary Color:</label>
-          <SketchPicker
-            color={plants.pColor}
-            onChangeComplete={(color) => handleColorChange('pColor', color.hex)}
-          />
-        </div>
-
-        <div>
-          <label>Secondary Color:</label>
-          <SketchPicker
-            color={plants.sColor}
-            onChangeComplete={(color) => handleColorChange('sColor', color.hex)}
-          />
-        </div>
-
-        <button type="submit">Add Plant</button>
-      </form>
+            <div className="color-picker">
+                <label>Secondary Color:</label>
+                <SketchPicker
+                color={plants.sColor}
+                onChangeComplete={(color) => handleColorChange("sColor", color.hex)}
+                />
+                <div
+                    className="color-preview"
+                    style={{
+                    backgroundColor: plants.sColor || "transparent", // Dynamic background color
+                    }}
+                ></div>
+            </div>
+</Form.Field>
+        <Button type="submit" primary>
+          Add Plant
+        </Button>
+      </Form>
     </div>
   );
 };

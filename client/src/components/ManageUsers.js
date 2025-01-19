@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { verifyToken } from './Utilities/authUtils';
+import '../Styler/ManageUsers.css'
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -75,9 +76,9 @@ const ManageUsers = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div>
       <h2>Manage Users</h2>
-      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+      <table>
         <thead>
           <tr>
             <th>First Name</th>
@@ -103,7 +104,7 @@ const ManageUsers = () => {
                   <option value="admin">Admin</option>
                 </select>
               </td>
-              <td
+              <td className='status'
                 style={{
                   backgroundColor: user.status === 'active' ? 'lightgreen' : 'lightcoral',
                   cursor: 'pointer',

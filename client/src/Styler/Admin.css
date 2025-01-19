@@ -1,0 +1,47 @@
+.admin.button {
+    background: linear-gradient(45deg, #ff6b6b, #f5a623);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: .75rem;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    margin: 10px;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+  
+  .admin.button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(45deg, #ff6b6b, #ff9f00);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .admin.button:active {
+    transform: scale(0.98);
+    background: linear-gradient(45deg, #ff6b6b, #ff5e00);
+  }
+  
+  .admin.button:focus {
+    outline: none;
+    border: 2px solid #ff9f00;
+  }
+  
+  .adminbuttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .headline {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

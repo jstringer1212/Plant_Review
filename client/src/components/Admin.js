@@ -1,18 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../Styler/Admin.css'
 
 const Admin = () => {
   const navigate = useNavigate();
+  const name = sessionStorage.getItem("firstName");
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Admin Dashboard</h1>
-      <div style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
-        <button onClick={() => navigate('/manageusers')} style={{ padding: '10px', fontSize: '16px' }}>
-          Admin Button: Manage Users
+    <div>
+      <div className='headline' style={{ padding: '20px' }}>
+        <h1>What would you like to do today {name}?</h1>
+      </div>
+      <div className='adminbuttons' style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
+        <button className='admin button' onClick={() => navigate('/manageusers')} style={{ padding: '10px', fontSize: '16px' }}>
+          Manage Users
         </button>
-        <button onClick={() => navigate('/addplant')} style={{ padding: '10px', fontSize: '16px' }}>
-          Admin Button: Add Plant
+        <button className='admin button' onClick={() => navigate('/addplant')} style={{ padding: '10px', fontSize: '16px' }}>
+          Add Plant
         </button>
       </div>
     </div>

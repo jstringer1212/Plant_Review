@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom'; // No need for BrowserRouter here
+import 'semantic-ui-css/semantic.min.css';
 import './App.css';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
