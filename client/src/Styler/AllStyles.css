@@ -313,6 +313,13 @@ img {
   width: 15%;
 }
 
+.ui.icon.edit.button {
+  background-color: #ccccff;
+  margin-left: 0.625rem; /* 10px */
+  height: 0.9375rem; /* 15px */
+  width: 0.9375rem; /* 15px */
+}
+
 /* Trash Icon Button */
 .ui.icon.trash.button {
   background-color: #ccccff;
@@ -366,3 +373,27 @@ img {
   height: 2rem;
 }
 
+.textarea {
+  min-height: 1rem;
+  width: 500px;
+}
+
+/* Basic styling for the star rating */
+.star-rating {
+  display: inline-block;
+}
+
+.star {
+  font-size: 30px; /* Adjust the size of the stars */
+  color: #d3d3d3;  /* Light grey for empty stars */
+  cursor: pointer;
+}
+
+.star.filled {
+  color: gold;  /* Color for filled stars */
+}
+
+.star:hover,
+.star.filled:hover {
+  color: #ffcc00;  /* Highlight filled star on hover */
+}

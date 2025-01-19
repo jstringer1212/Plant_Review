@@ -73,7 +73,7 @@ const Home = () => {
                 RANDOMIZE ME!!
               </button>
               <Link to={`/plants/${randomPlant.id}`}>
-                <button className="ui button">Go to Plant Page</button>
+                <button className="ui button">Plant Page</button>
               </Link>
             </div>
           </div>

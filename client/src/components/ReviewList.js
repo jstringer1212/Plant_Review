@@ -108,22 +108,37 @@ const ReviewList = ({ plantId }) => {
 
   const handleDeleteReview = async (reviewId, plantId, userId, role) => {
     try {
-      const response = await api.delete(`/reviews/${reviewId}`, {
-        headers: { Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json', },
-        data: { plantId, userId, role },
+      // Step 1: Delete all comments associated with the reviewId
+      const deleteCommentsResponse = await api.delete(`/comments/byReviewId/${reviewId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { reviewId, userId, role }, // Optional, depending on backend validation
       });
-
-      if (response.status === 200) {
-        setReviews((prev) => prev.filter((review) => review.id !== reviewId));
+  
+      if (deleteCommentsResponse.status === 200) {
+        // Step 2: Delete the review
+        const response = await api.delete(`/reviews/${reviewId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { plantId, userId, role },
+        });
+  
+        if (response.status === 200) {
+          // Step 3: Remove the review from the state
+          setReviews((prev) => prev.filter((review) => review.id !== reviewId));
+        } else {
+          throw new Error('Failed to delete review');
+        }
       } else {
-        throw new Error('Failed to delete review');
+        throw new Error('Failed to delete comments');
       }
     } catch (err) {
-      console.error('Error deleting review:', err);
+      console.error('Error deleting review and comments:', err);
       setError('Failed to delete review. Please try again later.');
     }
   };
+  
+  
+  
+  
 
   const handleEditReview = (reviewId, currentContent) => {
     setEditingReviewId(reviewId);
@@ -210,7 +225,7 @@ const ReviewList = ({ plantId }) => {
                 {canDelete && (
                   <>
                     <button
-                      className="ui icon edit"
+                      className="ui icon edit button"
                       onClick={() => handleEditReview(review.id, review.content)}
                     >
                       <i aria-hidden="true" className="edit icon"></i>

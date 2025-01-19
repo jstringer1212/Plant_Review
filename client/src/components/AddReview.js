@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
+import '../Styler/AllStyles.css'
 
 const AddReview = ({ plantId, onAddReview }) => {
   const [content, setContent] = useState('');
@@ -26,9 +27,7 @@ const AddReview = ({ plantId, onAddReview }) => {
     e.preventDefault();
 
     const token = getToken();
-    const userId = getUserId();
-
-    console.log(token, userId, "token and userID")
+    const userId = parseInt(getUserId(), 10);
 
     if (!token || !userId) {
       setError('You must be logged in to submit a review.');

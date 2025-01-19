@@ -46,7 +46,7 @@ button {
 
 textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 1rem;
 }
 
 /* Optional: Styling for color pickers */
