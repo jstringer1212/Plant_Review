@@ -52,7 +52,6 @@ router.post('/', async (req, res) => {
 router.delete('/:reviewId', async (req, res) => {
   const { reviewId } = req.params;
   const { plantId, userId, role } = req.body; // Accept role directly
-  console.log('review id: ', reviewId);
 
   try {
     // Find the review

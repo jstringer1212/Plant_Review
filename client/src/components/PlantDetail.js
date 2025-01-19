@@ -19,8 +19,6 @@ const PlantDetail = () => {
   const userStatus = sessionStorage.getItem('status');
   useEffect(() => {
     const fetchPlantDetails = async () => {
-      
-      console.log( "user status: ", userStatus);
       try {
         const response = await fetch(`/api/plants/${id}`);
         if (!response.ok) {

@@ -106,10 +106,12 @@ const ReviewList = ({ plantId }) => {
     }
   };
 
-  const handleDeleteReview = async (reviewId) => {
+  const handleDeleteReview = async (reviewId, plantId, userId, role) => {
     try {
       const response = await api.delete(`/reviews/${reviewId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json', },
+        data: { plantId, userId, role },
       });
 
       if (response.status === 200) {
@@ -215,7 +217,7 @@ const ReviewList = ({ plantId }) => {
                     </button>
                     <button
                       className="ui icon trash button"
-                      onClick={() => handleDeleteReview(review.id)}
+                      onClick={() => handleDeleteReview(review.id, plantId, userId, role)}
                     >
                       <i aria-hidden="true" className="trash icon"></i>
                     </button>

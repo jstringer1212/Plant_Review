@@ -64,6 +64,7 @@ img {
 }
 .ui.button:hover {
   background-color: #04a3ff;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
 
 /* Home Section */
@@ -123,17 +124,16 @@ img {
   color: red;
 }
 
-/* Form */
-.ui.form {
-  width: 15%;
-}
-
 /* Search */
 .ui.search {
+  width: 20%;
+  background-color: #ffffff00;
   display: flex;
   justify-content: center;
+  align-content: center;
   margin: 1.625rem; /* 10px */
   height: 3.125rem; /* 50px */
+  /* box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19); */
 }
 
 /* Centered Text Container */
