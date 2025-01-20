@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { verifyToken } from './Utilities/authUtils';
+import { useNavigate } from 'react-router-dom';
 import '../Styler/ManageUsers.css'
 
 const ManageUsers = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loadingRole, setLoadingRole] = useState(null);
   const [roleUpdateSuccess, setRoleUpdateSuccess] = useState(false);
@@ -78,6 +80,20 @@ const ManageUsers = () => {
   return (
     <div>
       <h2>Manage Users</h2>
+      <button
+      onClick={() => navigate('/admin')}
+      style={{
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        padding: '10px 15px',
+        fontSize: '.75rem',
+        borderRadius: '5px',
+        cursor: 'pointer',
+      }}
+    >
+      Back to Admin
+    </button>
       <table>
         <thead>
           <tr>

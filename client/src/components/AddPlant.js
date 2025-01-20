@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { SketchPicker } from 'react-color';
+import { useNavigate } from 'react-router-dom';
 import { verifyToken } from './Utilities/authUtils'; // Import verifyToken
 import '../Styler/AddPlant.css'
-import { Form, Input, TextArea, Button } from 'semantic-ui-react'; // Use Semantic UI components
+import { Form, Input, TextArea, Button } from 'semantic-ui-react'; 
 
 const AddPlant = () => {
+  const navigate = useNavigate();
   const [plants, setPlants] = useState({
     cName: '',
     sName: '',
@@ -68,6 +70,21 @@ const AddPlant = () => {
         
     >
       <h2>Add Plant</h2>
+      <button
+      onClick={() => navigate('/admin')}
+      style={{
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        padding: '10px 15px',
+        fontSize: '.75rem',
+        borderRadius: '5px',
+        cursor: 'pointer',
+      }}
+    >
+      Back to Admin
+    </button>
+
       <span></span>
       <Form className="ui form" onSubmit={handlePlantSubmit}>
         <Form.Field>

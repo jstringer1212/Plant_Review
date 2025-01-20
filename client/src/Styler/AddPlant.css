@@ -79,4 +79,11 @@ textarea {
     background: linear-gradient(to bottom right, var(--primary-color, #fff), var(--secondary-color, #fff));
     transition: background 1.6s ease-in-out; /* Smooth transition */
   }
+
+  h2 {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: xx-large;
+  }
   

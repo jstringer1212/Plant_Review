@@ -18,6 +18,9 @@ const Admin = () => {
         <button className='admin button' onClick={() => navigate('/addplant')} style={{ padding: '10px', fontSize: '16px' }}>
           Add Plant
         </button>
+        <button className='admin button' onClick={() => navigate('/editplant')} style={{ padding: '10px', fontSize: '16px' }}>
+          Edit or Delete Plant
+        </button>
       </div>
     </div>
   );

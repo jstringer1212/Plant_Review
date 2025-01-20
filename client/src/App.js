@@ -14,6 +14,8 @@ import Home from './components/Home';
 import Admin from './components/Admin';
 import ManageUsers from './components/ManageUsers';
 import AddPlant from './components/AddPlant';
+import EditPlant from './components/EditPlant';
+import EditPlantForm from './components/EditPlantForm';
 import { AuthProvider } from './contexts/AuthContext';  // Import AuthContext
 import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
 import './Styler/AllStyles.css';
@@ -37,6 +39,8 @@ function App() {
           <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
           <Route path="/manageusers" element={<ProtectedRoute element={<ManageUsers />} />} />
           <Route path="/addplant" element={<ProtectedRoute element={<AddPlant />} />} />
+          <Route path="/editplant" element={<ProtectedRoute element={<EditPlant />} />} />
+          <Route path="/editplant/:id" element={<ProtectedRoute element={<EditPlantForm />} />} />
         </Routes>
       </div>
     </AuthProvider>
