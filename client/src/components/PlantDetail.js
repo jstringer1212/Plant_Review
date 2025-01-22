@@ -119,7 +119,7 @@ const PlantDetail = () => {
       </div>
 
       {/* Reviews and Comments Section (75% width) */}
-      {userId && userStatus !== 'inactive' && (
+      
       <div style={{ flex: '0 0 75%', padding: '20px' }}>
         <div className="ui comments">
           <ReviewList plantId={plant.id} plantName={plant.cName} />
@@ -129,7 +129,6 @@ const PlantDetail = () => {
           )}
         </div>
       </div>
-      )}
     </div>
   );
 };
