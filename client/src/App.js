@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom'; // No need for BrowserRouter here
+import 'semantic-ui-css/semantic.min.css';
 import './App.css';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
@@ -10,15 +11,21 @@ import ReviewList from './components/ReviewList';
 import ReviewDetail from './components/ReviewDetail';
 import Account from './components/Account';
 import Home from './components/Home';
+import Admin from './components/Admin';
+import ManageUsers from './components/ManageUsers';
+import AddPlant from './components/AddPlant';
+import EditPlant from './components/EditPlant';
+import EditPlantForm from './components/EditPlantForm';
+import { AuthProvider } from './contexts/AuthContext';  // Import AuthContext
+import ProtectedRoute from './components/ProtectedRoute';  // Import ProtectedRoute
 import './Styler/AllStyles.css';
 
 function App() {
   return (
-    <Router>
+    <AuthProvider>  {/* Wrap your app with AuthProvider */}
       <div className="app-container">
         <header className="App-header">
-          <h1 className='ui centered header'>Plant Review App</h1>
-          <Navbar /> 
+          <Navbar />
         </header>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -28,10 +35,15 @@ function App() {
           <Route path="/reviews/:id" element={<ReviewDetail />} />
           <Route path="/reviews" element={<ReviewList />} />
           <Route path="/" element={<Home />} />
-          <Route path="/account" element={<Account />} />
+          <Route path="/account" element={<ProtectedRoute element={<Account />} />} />
+          <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
+          <Route path="/manageusers" element={<ProtectedRoute element={<ManageUsers />} />} />
+          <Route path="/addplant" element={<ProtectedRoute element={<AddPlant />} />} />
+          <Route path="/editplant" element={<ProtectedRoute element={<EditPlant />} />} />
+          <Route path="/editplant/:id" element={<ProtectedRoute element={<EditPlantForm />} />} />
         </Routes>
       </div>
-    </Router>
+    </AuthProvider>
   );
 }
 

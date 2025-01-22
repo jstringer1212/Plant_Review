@@ -3,28 +3,32 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Get all reviews, with optional filtering by plantId
+// Get all reviews, with optional filtering by plantId and userId
 router.get('/', async (req, res) => {
-  const { plantId } = req.query;
+  const { plantId, userId } = req.query;
   
   try {
     let reviews;
-    if (plantId) {
-      // Filter reviews by plantId if provided
-      reviews = await prisma.review.findMany({
-        where: {
-          plantId: parseInt(plantId, 10), // Make sure to parse it as an integer
-        },
-      });
-    } else {
-      // Return all reviews if no plantId is specified
-      reviews = await prisma.review.findMany();
+    const filters = {};
+
+    if (userId) {
+      filters.userId = parseInt(userId, 10); // Filter by userId if provided
     }
+    if (plantId) {
+      filters.plantId = parseInt(plantId, 10); // Filter by plantId if provided
+    }
+
+    // Fetch reviews based on filters
+    reviews = await prisma.review.findMany({
+      where: filters,
+    });
+
     res.status(200).json(reviews);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 });
+
 
 // Create a review
 router.post('/', async (req, res) => {
@@ -47,10 +51,10 @@ router.post('/', async (req, res) => {
 // Delete a review by reviewId and plantId
 router.delete('/:reviewId', async (req, res) => {
   const { reviewId } = req.params;
-  const { plantId } = req.body; // Or you could use query params: req.query.plantId
-  
+  const { plantId, userId, role } = req.body; // Accept role directly
+
   try {
-    // Find the review to ensure it belongs to the correct plantId
+    // Find the review
     const review = await prisma.review.findUnique({
       where: { id: parseInt(reviewId, 10) },
     });
@@ -59,20 +63,28 @@ router.delete('/:reviewId', async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
+    // Check if the review belongs to the correct plant
     if (review.plantId !== parseInt(plantId, 10)) {
       return res.status(400).json({ error: 'Review does not belong to the specified plant' });
     }
 
-    // Proceed to delete the review if it belongs to the correct plantId
+    // Check if the user is authorized to delete (owner or admin)
+    if (review.userId !== userId && role !== 'admin') {
+      return res.status(403).json({ error: 'You are not authorized to delete this review' });
+    }
+
+    // Proceed to delete the review
     await prisma.review.delete({
       where: { id: parseInt(reviewId, 10) },
     });
 
     res.status(200).json({ message: 'Review deleted successfully' });
   } catch (err) {
+    console.error('Error deleting review:', err);
     res.status(500).json({ error: 'Failed to delete review' });
   }
 });
+
 
 
 module.exports = router;

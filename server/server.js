@@ -14,6 +14,8 @@ const plantsRoutes = require('./routes/plants');
 const registerRoutes = require('./routes/register');
 const reviewsRoutes = require('./routes/reviews');
 const usersRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin'); 
+
 
 // Middleware
 app.use(cors());
@@ -27,7 +29,8 @@ app.use('/api/login', loginRoutes);
 app.use('/api/plants', plantsRoutes);
 app.use('/api/register', registerRoutes);
 app.use('/api/reviews', reviewsRoutes);
-app.use('/api/users', usersRoutes);
+app.use('/api/users', usersRoutes); // Keep this for general user routes
+app.use('/api', adminRoutes); // Admin routes
 
 // Start the server
 const PORT = process.env.PORT || 3000;

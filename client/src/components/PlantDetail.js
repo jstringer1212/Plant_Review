@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';  // Import PropTypes
-import { useParams, Link } from 'react-router-dom';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { IconButton } from '@mui/material';
+import PropTypes from 'prop-types';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import ReviewList from './ReviewList';
 import CommentList from './CommentList';
 import AddReview from './AddReview';
+import FavoriteButton from './favButton';
 
 const PlantDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Retrieve plant ID from the URL
+  const location = useLocation(); // Access state from navigation
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [favorites, setFavorites] = useState([]);
+  const userId = sessionStorage.getItem('userId'); // Retrieve user ID from sessionStorage
+  const [isFavorite, setIsFavorite] = useState(false); // Track favorite status for this plant
 
+  const from = location.state?.from || 'list'; // Determine navigation origin
+  const userStatus = sessionStorage.getItem('status');
   useEffect(() => {
     const fetchPlantDetails = async () => {
       try {
@@ -24,6 +26,14 @@ const PlantDetail = () => {
         }
         const data = await response.json();
         setPlant(data);
+
+        if (userId) {
+        // Check if this plant is already a favorite
+        const favoriteResponse = await fetch(`/api/favorites?userId=${userId}`);
+        const favoriteData = await favoriteResponse.json();
+        const isFavorited = favoriteData.some((fav) => fav.plantId === parseInt(id, 10));
+        setIsFavorite(isFavorited);
+        }
       } catch (error) {
         console.error('Error fetching plant details:', error);
         setError('Failed to load plant details. Please try again later.');
@@ -33,74 +43,97 @@ const PlantDetail = () => {
     };
 
     fetchPlantDetails();
-  }, [id]);
-
-  const toggleFavorite = async (plantId) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(plantId)
-        ? prevFavorites.filter((id) => id !== plantId)
-        : [...prevFavorites, plantId]
-    );
-  };
+  }, [id, userId]);
 
   if (loading) return <p>Loading plant details...</p>;
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="plant-item">
-      <div className="mainbg">
+    <div className="ui centered grid" style={{ display: 'flex', flexDirection: 'row' }}>
+      {/* Plant Details Section (25% width) */}
+      <div style={{ flex: '0 0 25%', padding: '20px' }} className="ui centered card">
         {plant ? (
           <>
-            <h2>{plant.cName}</h2>
-            <div className="detailsbox">
-              <ul>
-                <li className="detail">Genus</li>
-                <li className="detail">Species</li>
-                <li className="detail">Primary Color</li>
-                <li className="detail">Secondary Color</li>
-              </ul>
-              <ul>
-                <li className="detail">{plant.genus}</li>
-                <li className="detail">{plant.species}</li>
-                <li className="detail">{plant.pColor}</li>
-                <li className="detail">{plant.sColor}</li>
-              </ul>
+            <img
+              src={plant.imageUrl}
+              alt={plant.cName}
+              className="ui small centered bordered image"
+            />
+            <h1 className="ui centered header">{plant.cName}</h1>
+
+            <div role="list" className="ui list">
+              <div role="listitem" className="item">
+                <div className="header">Genus:</div>
+                {plant.genus}
+              </div>
+              <div role="listitem" className="item">
+                <div className="header">Species:</div>
+                {plant.species}
+              </div>
+              <div role="listitem" className="item">
+                <div className="header">Primary Color:</div>
+                {plant.pColor}
+              </div>
+              <div
+                className="ui centered segment"
+                style={{
+                  backgroundColor: plant.pColor,
+                  width: '100%',
+                  height: '50px',
+                  border: '3px solid',
+                }}
+              ></div>
+              <div role="listitem" className="item">
+                <div className="header">Secondary Color:</div>
+                {plant.sColor}
+              </div>
+              <div
+                className="ui centered segment"
+                style={{
+                  backgroundColor: plant.sColor,
+                  width: '100%',
+                  height: '50px',
+                  border: '3px solid',
+                }}
+              ></div>
             </div>
-            {plant.imageUrl && <img src={plant.imageUrl} alt={plant.cName} />}
-            <Link to="/plants">
-              <button className="button">Back to Plant List</button>
-            </Link>
-            <IconButton
-              className="favorite-button"
-              onClick={() => toggleFavorite(plant.id)}
-              color={favorites.includes(plant.id) ? 'error' : 'default'}
-              size="xlarge"
-            >
-              {favorites.includes(plant.id) ? (
-                <FavoriteIcon fontSize="large" />
-              ) : (
-                <FavoriteBorderIcon fontSize="large" />
+
+            <div className="ui centered grid">
+              <Link to={from === 'favorites' ? '/account' : '/plants'}>
+                <button className="ui button">
+                  Back to {from === 'favorites' ? 'Favorites' : 'Plant List'}
+                </button>
+              </Link>
+              {userId && userStatus !== 'inactive' && (
+              <FavoriteButton
+                userId={parseInt(userId, 10)}
+                plantId={plant.id}
+                initialFavorite={isFavorite} // Pass the favorite status dynamically
+              />
               )}
-            </IconButton>
-            <div className="RplusC">
-              <div className="reviews">
-                <ReviewList plantId={plant.id} plantName={plant.cName} />
-                <AddReview plantId={plant.id} />
-              </div>
-              <div className="comments">
-                <CommentList plantId={plant.id} plantName={plant.cName} />
-              </div>
             </div>
           </>
         ) : (
           <p>Plant not found</p>
         )}
       </div>
+
+      {/* Reviews and Comments Section (75% width) */}
+      
+      <div style={{ flex: '0 0 75%', padding: '20px' }}>
+        <div className="ui comments">
+          <ReviewList plantId={plant.id} plantName={plant.cName} />
+          <AddReview plantId={plant.id} />
+          {plant.comments && plant.comments > 0 && (
+            <CommentList plantId={plant.id} plantName={plant.cName} />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-// Adding PropTypes to validate props
+// PropTypes validation for props
 PlantDetail.propTypes = {
   plant: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -110,9 +143,8 @@ PlantDetail.propTypes = {
     pColor: PropTypes.string,
     sColor: PropTypes.string,
     imageUrl: PropTypes.string.isRequired,
+    comments: PropTypes.number,
   }),
-  favorites: PropTypes.arrayOf(PropTypes.string),
-  setFavorites: PropTypes.func.isRequired,
 };
 
 export default PlantDetail;

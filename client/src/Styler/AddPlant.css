@@ -1,0 +1,89 @@
+.ui.form.container {
+    width: 80%; /* Adjust width as needed */
+    max-width: 800px; /* Ensure responsiveness */
+    margin: 0 auto; /* Center the container horizontally */
+    background-color: cadetblue;
+    padding: 20px; /* Add spacing inside the container */
+    border-radius: 8px; /* Optional: Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Add a subtle shadow */
+    overflow: visible;
+}
+
+.ui.form {
+    background-color: rgba(255, 255, 255, 0);
+    width: 100%;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+}
+
+label {
+    text-align: center; /* Center the labels */
+    display: block; /* Ensure labels are above their inputs */
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.ui.form .field {
+    margin-bottom: 16px;
+}
+
+.ui.form .field.flex {
+    display: flex; /* Enable flex layout */
+    justify-content: space-between; /* Space out the items evenly */
+    gap: 20px; /* Add spacing between the two fields */
+    align-items: center; /* Align labels and inputs vertically */
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 1rem;
+}
+
+/* Optional: Styling for color pickers */
+.ui.form .field .color-picker {
+    flex: 1; /* Make color pickers equal width */
+    align-content: center;
+}
+
+.color-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px; /* Space between color pickers */
+  }
+  
+  .color-preview {
+    width: 150px; 
+    height: 50px; 
+    border-radius: 5px; /* Optional: Rounded corners */
+    border: .19rem solid #000000; /* Optional: Border for visibility */
+    margin-top: 10px; /* Spacing above preview box */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
+  }
+  
+
+.flex {
+    display: flex;
+    gap: 20px; /* Add space between items */
+    align-items: center; /* Center align labels and pickers */
+    background: linear-gradient(to bottom right, var(--primary-color, #fff), var(--secondary-color, #fff));
+    transition: background 1.6s ease-in-out; /* Smooth transition */
+  }
+
+  h2 {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: xx-large;
+  }
+  

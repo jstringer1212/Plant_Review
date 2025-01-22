@@ -20,6 +20,7 @@ model User {
   email       String    @unique
   password    String
   role        String    @default("user")
+  status      String    @default("active")
   reviews     Review[]
   comments    Comment[]
   favorites   Favorite[]

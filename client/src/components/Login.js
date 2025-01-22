@@ -1,76 +1,96 @@
-import React, { useState, useContext } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../api'; // Utility for API requests
+import '../Styler/Login.css'; // Optional: Add custom styles
 
-// Create a Context for Auth
-const AuthContext = React.createContext();
-
-// Auth Provider Component
-export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    token: null,
-    userId: null,
-  });
-
-  return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-// Custom Hook to Access Auth Context
-export const useAuth = () => useContext(AuthContext);
-
-// Login Component
-const Login = () => {
+const Login = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setAuth } = useAuth();
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // For button state
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
     try {
-      const response = await axios.post('/api/login', { email, password });
+      const response = await api.post('/login', { email, password });
 
-      // Extract token and userId from the response
-      const { token, userId } = response.data;
+      if (response.status === 200) {
+        const { token, userId, role, firstName, lastName, status } = response.data;
+        console.log("User ID:", userId, "Role:", role, "Status", status);
 
-      if (token && userId) {
-        // Save to context and localStorage
-        setAuth({ token, userId });
-        localStorage.setItem('token', token);
-        localStorage.setItem('userId', userId);
-        
-        console.log('Login successful:', { token, userId });
+        // Store token and user data
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('role', role);
+        sessionStorage.setItem('firstName', firstName);
+        sessionStorage.setItem('lastName', lastName);
+        sessionStorage.setItem('status', status);
 
-        // Redirect to home page
-        navigate('/');
+        const userStatus = sessionStorage.getItem('status');
+
+        if (userStatus !== 'active') {
+          setError('Please contact an Administrator to return your account to active');
+          setIsLoading(false);
+          return;
+        }
+        if (onClose) {
+          onClose(); // Close modal if triggered from modal
+        } else {
+          navigate('/'); // Redirect to home page if standalone
+        }
       } else {
-        console.error('Invalid response format:', response.data);
+        setError('Invalid email or password. Please try again.');
       }
-    } catch (error) {
-      console.error('Error logging in:', error.response?.data || error.message);
+    } catch (err) {
+      setError('An error occurred while logging in.');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false); // Re-enable the button
     }
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="login-container">
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+
+      {error && <p className="error-message">{error}</p>}
+
+      {onClose && (
+        <button className="modal-close-button" onClick={onClose}>
+          Close
+        </button>
+      )}
+    </div>
   );
 };
 

@@ -1,44 +1,399 @@
+/* General Image Styling */
 img {
-    justify-content: center;
-    align-items: center;
-    width: 75%;
-    height: 30%;
-    object-fit: cover;
+  justify-content: center;
+  align-items: center;
+  width: 75%;
+  height: 7rem; /* 30px */
+  object-fit: cover;
+  margin: 1rem; /* 20px */
 }
 
+/* Horizontal Segments Styling */
 .ui.horizontal.segments {
-    
-    justify-content: left;
-    align-items: left;
-    margin: 10px;
-    padding: 10px;
-    max-height: 500px;
+  justify-content: left;
+  align-items: left;
+  margin: 0.625rem; /* 10px */
+  padding: 0.625rem; /* 10px */
+  max-height: 31.25rem; /* 500px */
 }
 
+/* Plant Item */
 .plant-item {
-  width: 300px;
+  width: 18.75rem; /* 300px */
 }
 
-.ui.grid {
-    margin: 10px;
-    padding: 10px;
+/* Centered Grid */
+.ui.centered.grid {
+  margin: 0.625rem; /* 10px */
+  padding: 0.625rem; /* 10px */
 }
 
+/* Centered Header */
 .ui.centered.header {
-    margin: 10px;
-    padding: 10px;
+  margin: 0.625rem; /* 10px */
+  padding: 0.625rem; /* 10px */
+  justify-content: center;
+  background-color: rgb(3, 184, 3);
+  height: 4rem; /* 20px */
+  background-color: aqua;
 }
 
-.plant-item {
-    margin: 10px;
-    padding: 10px;
-    border: 2px solid #f1f1f1;
-}
-
+/* Icon Button */
 .ui.icon.button {
-  height: 50px;
-  width: 50px;
-  margin: 10px;
-  padding: 4px;
-  border-radius: 100%;
+  height: 4.6875rem; /* 75px */
+  width: 4.6875rem; /* 75px */
+  margin: 0.625rem; /* 10px */
+  color: rgb(0, 0, 0);
+  background-color: rgb(202, 202, 202);
+  border: 0.1875rem solid rgba(248, 2, 2, 0); /* 3px */
+  border-radius: 50%;
+}
+
+/* General Button */
+.ui.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3.6875rem; /* 75px */
+  /* width: 3.6875rem; 75px */
+  margin: 0.625rem; /* 10px */
+  padding: 0.25rem; /* 4px */
+  color: rgb(0, 0, 0);
+  background-color: rgb(2, 248, 22);
+  border: .125rem solid black;
+}
+.ui.button:hover {
+  background-color: #04a3ff;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+/* Home Section */
+.home {
+  width: 50%;
+  justify-content: right;
+  align-items: right;
+}
+
+/* Header */
+.header {
+  margin: 0.3125rem; /* 5px */
+}
+
+/* Item */
+.item {
+  font-size: medium;
+  height: 3.5rem;
+  margin: 0.9375rem; /* 15px */
+}
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 7rem; /* 95px */
+  max-width: 100%;
+}
+
+/* Inverted Button */
+.ui.inverted.button {
+  width: 6.25rem; /* 100px */
+  background-color: green;
+}
+
+/* Card */
+.ui.card {
+  margin: 0;
+  padding: 0.125rem; /* 2px */
+  max-width: 20%;
+  min-width: 15.625rem; /* 250px */
+  border: 0.3125rem solid rgb(15, 121, 29); /* 5px */
+}
+
+/* Comments Section */
+.ui.comments {
+  padding: 0.5rem; /* 8px */
+  background-color: #ccccff;
+  border: .25rem solid black;
+  width: 100%;
+}
+
+/* Heart Button */
+.ui.heart.button {
+  background-color: white;
+  color: red;
+}
+
+/* Search */
+.ui.search {
+  width: 20%;
+  background-color: #ffffff00;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  margin: 1.625rem; /* 10px */
+  height: 3.125rem; /* 50px */
+  /* box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19); */
+}
+
+/* Centered Text Container */
+.ui.centered.text.container {
+  display: block;
+  justify-content: center;
+}
+
+/* Two Column Grid */
+.ui.two.column.grid {
+  border: 0.1875rem solid black; /* 3px */
+  margin-top: 1.25rem; /* 20px */
+  background-color: lightgreen;
+}
+
+/* Left Grid */
+.ui.left.grid {
+  border: 0.1875rem solid blue; /* 3px */
+  background-color: beige;
+  width: 49%;
+  margin-right: 0.0625rem; /* 1px */
+  display: inline;
+}
+
+/* Right Grid */
+.ui.right.grid {
+  background-color: beige;
+  border: 0.1875rem solid red; /* 3px */
+  width: 45%;
+}
+
+/* Add Form */
+.ui.add.form {
+  width: 50%;
+}
+
+/* Color Picker Popup */
+.color-picker-popup {
+  position: absolute;
+  z-index: 10;
+  background-color: #fff;
+  box-shadow: 0px 0.25rem 0.75rem rgba(0, 0, 0, 0.1); /* 4px 12px */
+  padding: 1.25rem; /* 20px */
+  border-radius: 0.5rem; /* 8px */
+  top: 3.75rem; /* 60px */
+  left: 0.625rem; /* 10px */
+}
+.color-picker-popup .react-color {
+  border-radius: 0.5rem; /* 8px */
+}
+.color-picker-popup button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.5rem 1rem; /* 8px 16px */
+  border: none;
+  border-radius: 0.25rem; /* 4px */
+  cursor: pointer;
+}
+.color-picker-popup button:hover {
+  background-color: #45a049;
+}
+
+/* Small Input */
+.ui.small.input {
+  height: 4.6875rem; /* 75px */
+}
+
+/* Review List Section */
+.review-list {
+  padding: 1.25rem; /* 20px */
+}
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.625rem; /* 10px */
+}
+.review-info .author {
+  font-weight: bold;
+  font-size: 1rem; /* 16px */
+  width: 3.125rem; /* 50px */
+}
+.review-info .metadata .date {
+  color: #888;
+  font-size: 0.75rem; /* 12px */
+}
+.add-review textarea {
+  width: 100%;
+  padding: 0.625rem; /* 10px */
+  margin-bottom: 0.625rem; /* 10px */
+  border: 0.0625rem solid #ccc; /* 1px */
+  border-radius: 0.3125rem; /* 5px */
+  font-size: 0.875rem; /* 14px */
+}
+
+.add-review button {
+  margin: 0.3125rem; /* 5px */
+  padding: 0.625rem; /* 10px */
+  background-color: #449c46;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border: .125rem solid black;
+}
+.add-review button:hover {
+  background-color: #4f04ff;
+}
+
+.add-comment button {
+  margin: 0.125rem; /* 5px */
+  padding: 0.25rem; /* 10px */
+  height: 2.25rem;
+  background-color: #449c46;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border: .125rem solid black;
+}
+.add-comment button:hover {
+  background-color: #4f04ff;
+}
+
+/* Error Styling */
+.error {
+  color: rgb(255, 0, 0);
+  font-weight: bold;
+}
+
+/* Dividing Headers */
+.ui.dividing.review.header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: center;
+}
+.ui.dividing.comment.header {
+  margin-left: 0.9375rem; /* 15px */
+  width: 3.125rem; /* 50px */
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Review Item */
+.review-item {
+  margin-top: 1.125rem; /* 18px */
+  margin-bottom: 0.1875rem; /* 3px */
+  border: 0.125rem solid rgb(141, 99, 141); /* 2px */
+}
+
+/* Review Text */
+.review-text {
+  margin-bottom: 0.9375rem; /* 15px */
+  height: 3.125rem; /* 50px */
+  font-size: 0.875rem; /* 14px */
+  border: 0.125rem solid rgb(180, 179, 180); /* 2px */
+  margin-left: 0.9375rem; /* 15px */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.review-text span {
+  flex-grow: 1;
+}
+
+/* Comment */
+.comment {
+  border: 0.625rem solid rgb(223, 223, 223); /* 10px */
+  margin-left: 10%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+.comment-info {
+  margin-left: 25%;
+  width: 15%;
+}
+
+.ui.icon.edit.button {
+  background-color: #ccccff;
+  margin-left: 0.625rem; /* 10px */
+  height: 0.9375rem; /* 15px */
+  width: 0.9375rem; /* 15px */
+}
+
+/* Trash Icon Button */
+.ui.icon.trash.button {
+  background-color: #ccccff;
+  margin-left: 0.625rem; /* 10px */
+  height: 0.9375rem; /* 15px */
+  width: 0.9375rem; /* 15px */
+}
+
+/* Author */
+.author {
+  width: 3.125rem; /* 50px */
+}
+
+.plant-card {
+  background-color: cornsilk;
+}
+
+.review-card {
+  background-color: cornsilk;
+}
+
+.warning {
+  background-color: red;
+  margin: -1rem;
+  animation: colorFlash 1s infinite;
+}
+@keyframes colorFlash {
+  0% {
+    background-color: rgb(238, 255, 0);
+  }
+  25% {
+    background-color: #4CAF50;
+  }
+  50% {
+    background-color: rgb(68, 6, 241);
+  }
+  75% {
+    background-color: black;
+  }
+  100% {
+    background-color: red;
+  }
+}
+
+.edit-field {
+  background-color: rgba(255, 255, 255, 0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 2rem;
+}
+
+.textarea {
+  min-height: 1rem;
+  width: 500px;
+}
+
+/* Basic styling for the star rating */
+.star-rating {
+  display: inline-block;
+}
+
+.star {
+  font-size: 30px; /* Adjust the size of the stars */
+  color: #d3d3d3;  /* Light grey for empty stars */
+  cursor: pointer;
+}
+
+.star.filled {
+  color: gold;  /* Color for filled stars */
+}
+
+.star:hover,
+.star.filled:hover {
+  color: #ffcc00;  /* Highlight filled star on hover */
 }

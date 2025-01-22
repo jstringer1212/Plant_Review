@@ -1,0 +1,9 @@
+.ui.form {
+    width:50%;
+}
+
+.ui.centered.grid {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}

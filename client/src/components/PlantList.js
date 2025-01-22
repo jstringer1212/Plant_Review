@@ -1,121 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import FavoriteButton from './favButton';
 
 const PlantList = () => {
   const [plants, setPlants] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [favorites, setFavorites] = useState([]);
-  const userId = localStorage.getItem('userId');
+  const [searchTerm, setSearchTerm] = useState('');
+  const userId = sessionStorage.getItem('userId');
+  const userStatus = sessionStorage.getItem('status');
 
   useEffect(() => {
-    const fetchPlants = async () => {
+    const fetchPlantsAndFavorites = async () => {
       try {
-        const response = await fetch('/api/plants');
-        if (!response.ok) {
-          throw new Error('Failed to fetch plants');
+        const plantResponse = await fetch('/api/plants');
+        if (!plantResponse.ok) throw new Error('Failed to fetch plants');
+        const plantData = await plantResponse.json();
+        setPlants(plantData);
+
+        if (userId) {
+          const favoriteResponse = await fetch(`/api/favorites?userId=${userId}`);
+          if (!favoriteResponse.ok) throw new Error('Failed to fetch favorites');
+          const favoriteData = await favoriteResponse.json();
+          setFavorites(favoriteData);
         }
-        const data = await response.json();
-        setPlants(data);
       } catch (error) {
-        console.error('Error fetching plants:', error);
-        setError('Failed to load plants. Please try again later.');
+        console.error('Error fetching data:', error);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchFavorites = async () => {
-      if (!userId) {
-        console.warn('User ID is not available; fetchFavorites will not be called.');
-        return;
-      }
-      try {
-        const response = await fetch(`/api/favorites`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch favorites');
-        }
-        const favoriteData = await response.json();
-        const userFavorites = favoriteData
-          .filter((favorite) => favorite.userId === parseInt(userId, 10))
-          .map((favorite) => favorite.plantId); // Extract plant IDs for user's favorites
-        setFavorites(userFavorites); // Update favorites with the array of plant IDs
-      } catch (error) {
-        console.error('Error fetching favorites:', error);
-      }
-    };
-
-    fetchPlants();
-    if (userId) fetchFavorites();
+    fetchPlantsAndFavorites();
   }, [userId]);
 
-  const isFavorite = (plantId) => favorites.includes(plantId);
+  const handleSearchChange = (event) => setSearchTerm(event.target.value.toLowerCase());
+
+  const filteredPlants = plants.filter((plant) =>
+    plant.cName.toLowerCase().includes(searchTerm)
+  );
+
+  const isPlantFavorited = (plantId) => {
+    return favorites.some((favorite) => favorite.plantId === plantId && favorite.isFavorite);
+  };
 
   if (loading) return <p>Loading plants...</p>;
   if (error) return <p className="error">{error}</p>;
 
-  const sortedPlants = plants.sort((a, b) => a.cName.localeCompare(b.cName));
-
   return (
-    <div className="ui grid">
-      {sortedPlants.length > 0 ? (
-        sortedPlants.map((plant) => (
-          <div
-            key={plant.id}
-            className="plant-item"
-            style={{
-              backgroundColor: plant.pColor || 'white',
-            }}
-          >
-            <div className="ui centered header">{plant.cName}</div>
-            <div>
-              <ul>
-                <li className="detail">Genus: {plant.genus}</li>
-                <li className="detail">Species: {plant.species}</li>
-                <li className="detail">Primary Color: {plant.pColor}</li>
-                <li className="detail">Secondary Color: {plant.sColor}</li>
-              </ul>
-            </div>
-            <img src={plant.imageUrl} alt={plant.cName} />
-            <Link to={`/plants/${plant.id}`}>
-              <button className="ui primary button">Plant Details</button>
-            </Link>
-            <div className='ui icon button'>
-            <FavoriteButton
-              userId={userId}
-              plantId={plant.id}
-              initialFavorite={isFavorite(plant.id)} // Determine if the plant is a favorite
-            /></div>
-          </div>
-        ))
-      ) : (
-        <p>No plants available.</p>
-      )}
-    </div>
+    <>
+      <div className="ui search">
+        <div className="ui icon input">
+          <input
+            type="text"
+            placeholder="Search plants..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="prompt"
+          />
+          <i className="search icon"></i>
+        </div>
+      </div>
+
+      <div className="ui centered grid">
+        {filteredPlants.length > 0 ? (
+          filteredPlants
+            .sort((a, b) => a.cName.localeCompare(b.cName))
+            .map((plant) => (
+              <div key={plant.id} className="ui card">
+                <img src={plant.imageUrl} alt={plant.cName} className="ui centered bordered image" />
+                <h1 className="ui centered header">{plant.cName}</h1>
+                <div role="list" className="ui list">
+                  <div className="item">
+                    <div className="header">Genus:</div> {plant.genus}
+                  </div>
+                  <div className="item">
+                    <div className="header">Species:</div> {plant.species}
+                  </div>
+                  <div className="item">
+                    <div className="header">Care: </div> {plant.care}
+                  </div>
+                  <div className="item">
+                    <div className="header">Primary Color:</div> {plant.pColor}
+                  </div>
+                  <div
+                    className="ui centered segment"
+                    style={{ backgroundColor: plant.pColor, height: '50px', border: '3px solid' }}
+                  />
+                  <div className="item">
+                    <div className="header">Secondary Color:</div> {plant.sColor}
+                  </div>
+                  <div
+                    className="ui centered segment"
+                    style={{ backgroundColor: plant.sColor, height: '50px', border: '3px solid' }}
+                  />
+                </div>
+                <div className="ui centered grid">
+                  <Link to={`/plants/${plant.id}`}>
+                    <button className="ui button">See Plant Details</button>
+                  </Link>
+                  {userId && userStatus !== 'inactive' && (
+                    <FavoriteButton
+                      userId={parseInt(userId, 10)}
+                      plantId={plant.id}
+                      initialFavorite={isPlantFavorited(plant.id)}
+                    />
+                  )}
+                </div>
+              </div>
+            ))
+        ) : (
+          <p>No plants available.</p>
+        )}
+      </div>
+    </>
   );
 };
 
-// Adding PropTypes to validate props
-PlantList.propTypes = {
-  plants: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      cName: PropTypes.string.isRequired,
-      genus: PropTypes.string.isRequired,
-      species: PropTypes.string.isRequired,
-      pColor: PropTypes.string,
-      sColor: PropTypes.string,
-      imageUrl: PropTypes.string.isRequired,
-    })
-  ),
-  loading: PropTypes.bool,
-  error: PropTypes.string,
-  favorites: PropTypes.arrayOf(PropTypes.string),
-  setFavorites: PropTypes.func,
-};
-
 export default PlantList;
-
-

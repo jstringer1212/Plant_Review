@@ -26,9 +26,29 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login successful', token, userId: user.id });
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is undefined!");
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role, firstName: user.firstName, status: user.status }, 
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    // console.log("Generated token:", token);
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      userId: user.id,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      status: user.status,
+    });
   } catch (error) {
+    console.error('Login error:', error.stack);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
